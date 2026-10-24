@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OceanLog - Marine Life Tracker</title>
+  
+  <!-- Web App Meta Tags -->
+  <meta name="theme-color" content="#0d1726">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            appDark: '#0d1726',
+            appCard: '#16243b',
+            appInput: '#101d30',
+            appTeal: '#00a878',
+            appTealHover: '#009268',
+            appTextDark: '#93a7c1'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Leaflet Maps CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    body {
+      touch-action: pan-y;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .custom-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .unseen-img {
+      filter: grayscale(100%) brightness(0.65) contrast(1.1);
+      transition: filter 0.4s ease, transform 0.4s ease;
+    }
+    .seen-img {
+      filter: grayscale(0%) brightness(1) contrast(1);
+      transition: filter 0.4s ease, transform 0.4s ease;
+    }
+    .leaflet-popup-content-wrapper {
+      background: #16243b !important;
+      color: #fff !important;
+      border-radius: 12px !important;
+      padding: 4px !important;
+      border: 1px solid #00a878 !important;
+    }
+    .leaflet-popup-tip {
+      background: #16243b !important;
+    }
+  </style>
+</head>
+<body class="bg-[#f0f4f8] text-slate-800 dark:bg-appDark dark:text-slate-100 min-h-screen font-sans pb-24 transition-colors duration-200">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-appDark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 px-4 py-3">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-appTeal flex items-center justify-center text-white shadow-lg shadow-appTeal/20">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-lg font-bold tracking-tight">OceanLog</h1>
+            <span class="text-[10px] bg-appTeal/20 text-appTeal px-1.5 py-0.5 rounded font-semibold tracking-wider">LIFE LIST</span>
+          </div>
+          <p id="stats-counter" class="text-xs text-slate-500 dark:text-appTextDark font-medium">0 / 0 Arten gesichtet</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="lang-btn" class="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-appCard transition">
+          EN
+        </button>
+        <button id="theme-btn" class="p-2 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-appCard transition text-amber-500 dark:text-amber-400">
+          <svg id="theme-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View: Catalog -->
+  <main id="catalog-view" class="max-w-md mx-auto px-4 pt-3">
+    <!-- Search Bar -->
+    <div class="relative mb-3">
+      <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400 dark:text-appTextDark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input type="text" id="search-input" placeholder="Tiername, Englisch oder wiss. Name suchen..." 
+        class="w-full bg-white dark:bg-appInput pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-appTeal dark:focus:border-appTeal text-slate-900 dark:text-slate-100 shadow-sm transition">
+    </div>
+
+    <!-- Status Filters -->
+    <div class="flex items-center gap-1.5 mb-2.5 overflow-x-auto custom-scrollbar text-xs">
+      <button class="status-btn px-3 py-1.5 rounded-full font-semibold bg-appTeal text-white shadow-sm" data-status="all">Alle</button>
+      <button class="status-btn px-3 py-1.5 rounded-full font-semibold bg-slate-200 dark:bg-appCard text-slate-700 dark:text-slate-300" data-status="seen">Gesehen ✨</button>
+      <button class="status-btn px-3 py-1.5 rounded-full font-semibold bg-slate-200 dark:bg-appCard text-slate-700 dark:text-slate-300" data-status="unseen">Noch offen</button>
+    </div>
+
+    <!-- Category Ribbon -->
+    <div id="category-bar" class="flex gap-2 overflow-x-auto custom-scrollbar pb-2 mb-3 text-xs font-medium"></div>
+
+    <!-- Species Grid -->
+    <div id="species-grid" class="grid grid-cols-2 gap-3 mb-6"></div>
+  </main>
+
+  <!-- World Map View -->
+  <section id="map-view" class="hidden max-w-md mx-auto px-4 pt-3">
+    <div class="bg-white dark:bg-appCard rounded-2xl p-3 border border-slate-200 dark:border-slate-800 shadow-sm mb-3">
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100" id="map-title">Sichtungs-Weltkarte</h2>
+          <p class="text-xs text-slate-500 dark:text-appTextDark" id="map-subtitle">Tippe auf einen Pin, um Details zu sehen</p>
+        </div>
+        <button id="reset-map-btn" class="px-2.5 py-1 text-xs bg-slate-100 dark:bg-appInput rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+          Zentrieren
+        </button>
+      </div>
+      <div id="leaflet-map" class="w-full h-[65vh] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700"></div>
+    </div>
+  </section>
+
+  <!-- Backup & Storage View -->
+  <section id="backup-view" class="hidden max-w-md mx-auto px-4 pt-3">
+    <div class="bg-white dark:bg-appCard rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <h2 class="text-base font-bold mb-1" id="backup-title">Daten & Sicherung</h2>
+      <p class="text-xs text-slate-500 dark:text-appTextDark mb-4" id="backup-desc">Deine Sichtungen werden sicher im Telefonspeicher abgelegt. Lade regelmäßig ein Backup herunter.</p>
+      
+      <div class="space-y-3">
+        <button id="export-btn" class="w-full py-2.5 px-4 bg-appTeal hover:bg-appTealHover text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span id="export-text">Backup als JSON herunterladen</span>
+        </button>
+
+        <label class="w-full py-2.5 px-4 bg-slate-100 dark:bg-appInput hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 cursor-pointer transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          <span id="import-text">Backup-Datei wiederherstellen</span>
+          <input type="file" id="import-file" accept=".json" class="hidden">
+        </label>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <span class="text-xs text-slate-500 dark:text-appTextDark" id="storage-status">Gespeicherte Sichtungen:</span>
+        <span id="storage-count" class="text-xs font-bold text-appTeal">0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-appDark/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800/80 px-6 py-2">
+    <div class="max-w-md mx-auto flex items-center justify-around text-xs">
+      <button class="nav-btn flex flex-col items-center gap-1 text-appTeal" data-tab="catalog-view">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <span id="nav-catalog">Katalog</span>
+      </button>
+
+      <button class="nav-btn flex flex-col items-center gap-1 text-slate-500 dark:text-appTextDark" data-tab="map-view">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span id="nav-map">Weltkarte</span>
+      </button>
+
+      <button class="nav-btn flex flex-col items-center gap-1 text-slate-500 dark:text-appTextDark" data-tab="backup-view">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+        </svg>
+        <span id="nav-backup">Speicher</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Floating Scroll To Top Button -->
+  <button id="scroll-top-btn" class="fixed bottom-20 left-4 z-30 hidden w-10 h-10 rounded-full bg-slate-800/80 dark:bg-appCard/90 text-white shadow-lg border border-slate-700/50 flex items-center justify-center transition-all">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+    </svg>
+  </button>
+
+  <!-- Modal: Sighting Log / Details -->
+  <div id="sighting-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white dark:bg-appCard w-full max-w-md rounded-t-3xl sm:rounded-2xl max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 p-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h3 id="modal-species-title" class="text-base font-bold text-slate-900 dark:text-slate-100">Sichtung eintragen</h3>
+          <p id="modal-species-sub" class="text-xs text-slate-500 dark:text-appTextDark italic"></p>
+        </div>
+        <button id="close-modal-btn" class="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="sighting-form" class="space-y-3 pt-3 text-xs">
+        <input type="hidden" id="modal-species-id">
+
+        <div>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300" id="label-date">Datum & Uhrzeit</label>
+          <input type="datetime-local" id="modal-date" required class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300" id="label-location">Ort / Riff / Insel</label>
+          <div class="relative">
+            <input type="text" id="modal-location" placeholder="z. B. Tiputa Pass, Rangiroa" required class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+            <div id="autocomplete-list" class="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-appInput border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto hidden"></div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 items-center">
+          <button type="button" id="get-gps-btn" class="px-3 py-2 bg-slate-100 dark:bg-appInput border border-slate-200 dark:border-slate-700 rounded-xl font-medium flex items-center gap-1 text-slate-700 dark:text-slate-300">
+            <svg class="w-3.5 h-3.5 text-appTeal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            </svg>
+            <span id="btn-gps-text">Mein GPS nutzen</span>
+          </button>
+          <span id="gps-status" class="text-[11px] text-slate-400 truncate"></span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300" id="label-depth">Tiefe (Meter)</label>
+            <input type="number" id="modal-depth" placeholder="z. B. 18" class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300" id="label-count">Anzahl Tiere</label>
+            <input type="number" id="modal-count" value="1" min="1" class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300" id="label-notes">Notizen / Verhalten</label>
+          <textarea id="modal-notes" rows="2" placeholder="z. B. Putzerstation, jagend..." class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100"></textarea>
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button type="submit" class="flex-1 py-2.5 bg-appTeal hover:bg-appTealHover text-white font-bold rounded-xl shadow-lg shadow-appTeal/20 transition" id="save-sighting-btn">
+            Sichtung speichern
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Hidden Photo Replacement Input -->
+  <input type="file" id="photo-upload-input" accept="image/*" class="hidden">
+
+  <script>
+    // --- SPECIES DATABASE (HTTPS Direct Verified Links) ---
+    const initialSpecies = [
+      { id: 'shark-1', cat: 'sharks', de: 'Walhai', en: 'Whale Shark', sci: 'Rhincodon typus', img: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80' },
+      { id: 'shark-2', cat: 'sharks', de: 'Weißspitzen-Riffhai', en: 'Whitetip Reef Shark', sci: 'Triaenodon obesus', img: 'https://images.unsplash.com/photo-1560275619-4662e36fa65c?auto=format&fit=crop&w=600&q=80' },
+      { id: 'shark-3', cat: 'sharks', de: 'Schwarzspitzen-Riffhai', en: 'Blacktip Reef Shark', sci: 'Carcharhinus melanopterus', img: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=600&q=80' },
+      { id: 'shark-4', cat: 'sharks', de: 'Grauer Riffhai', en: 'Grey Reef Shark', sci: 'Carcharhinus amblyrhynchos', img: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?auto=format&fit=crop&w=600&q=80' },
+      { id: 'shark-5', cat: 'sharks', de: 'Großer Hammerhai', en: 'Great Hammerhead', sci: 'Sphyrna mokarran', img: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=600&q=80' },
+      { id: 'shark-6', cat: 'sharks', de: 'Tigerhai', en: 'Tiger Shark', sci: 'Galeocerdo cuvier', img: 'https://images.unsplash.com/photo-1598977123118-4e30ba3c4f5b?auto=format&fit=crop&w=600&q=80' },
+      { id: 'ray-1', cat: 'rays', de: 'Riffmanta', en: 'Reef Manta Ray', sci: 'Mobula alfredi', img: 'https://images.unsplash.com/photo-1544551763-77ef2d0cf96c?auto=format&fit=crop&w=600&q=80' },
+      { id: 'ray-2', cat: 'rays', de: 'Gefleckter Adlerrochen', en: 'Spotted Eagle Ray', sci: 'Aetobatus narinari', img: 'https://images.unsplash.com/photo-1508873696983-2df5293cb395?auto=format&fit=crop&w=600&q=80' },
+      { id: 'ray-3', cat: 'rays', de: 'Blaupunkt-Stechrochen', en: 'Bluespotted Ribbontail Ray', sci: 'Taeniura lymma', img: 'https://images.unsplash.com/photo-1584727638096-042c45049ebe?auto=format&fit=crop&w=600&q=80' },
+      { id: 'mammal-1', cat: 'mammals', de: 'Großer Tümmler', en: 'Bottlenose Dolphin', sci: 'Tursiops truncatus', img: 'https://images.unsplash.com/photo-1607153333879-c174d265f1d2?auto=format&fit=crop&w=600&q=80' },
+      { id: 'mammal-2', cat: 'mammals', de: 'Buckelwal', en: 'Humpback Whale', sci: 'Megaptera novaeangliae', img: 'https://images.unsplash.com/photo-1568430462989-44163eb1752f?auto=format&fit=crop&w=600&q=80' },
+      { id: 'turtle-1', cat: 'turtles', de: 'Grüne Meeresschildkröte', en: 'Green Sea Turtle', sci: 'Chelonia mydas', img: 'https://images.unsplash.com/photo-1518467166778-b88f373ffec7?auto=format&fit=crop&w=600&q=80' },
+      { id: 'turtle-2', cat: 'turtles', de: 'Echte Karettschildkröte', en: 'Hawksbill Turtle', sci: 'Eretmochelys imbricata', img: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=600&q=80' },
+      { id: 'fish-1', cat: 'reef', de: 'Echter Clownfisch', en: 'Ocellaris Clownfish', sci: 'Amphiprion ocellaris', img: 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00?auto=format&fit=crop&w=600&q=80' },
+      { id: 'fish-2', cat: 'reef', de: 'Titan-Drückerfisch', en: 'Titan Triggerfish', sci: 'Balistoides viridescens', img: 'https://images.unsplash.com/photo-1544551763-7b447477c770?auto=format&fit=crop&w=600&q=80' },
+      { id: 'fish-3', cat: 'reef', de: 'Napoleon-Lippfisch', en: 'Humphead Wrasse', sci: 'Cheilinus undulatus', img: 'https://images.unsplash.com/photo-1535591273668-578e31182c4f?auto=format&fit=crop&w=600&q=80' },
+      { id: 'invert-1', cat: 'invert', de: 'Gewöhnlicher Krake', en: 'Common Octopus', sci: 'Octopus vulgaris', img: 'https://images.unsplash.com/photo-1545671913-b89ac1b4ac10?auto=format&fit=crop&w=600&q=80' }
+    ];
+
+    // --- APPLICATION STATE ---
+    let currentLang = localStorage.getItem('oceanlog_lang') || 'de';
+    let currentTheme = localStorage.getItem('oceanlog_theme') || 'dark';
+    let activeCategory = 'all';
+    let activeStatus = 'all';
+    let targetPhotoSpeciesId = null;
+    let map = null;
+    let markersLayer = null;
+
+    // Load sightings and custom species from localStorage
+    let sightings = JSON.parse(localStorage.getItem('oceanlog_sightings')) || [];
+    let customSpecies = JSON.parse(localStorage.getItem('oceanlog_custom')) || [];
+    let customPhotos = JSON.parse(localStorage.getItem('oceanlog_photos')) || {};
+
+    const categories = [
+      { id: 'all', de: 'Alle', en: 'All' },
+      { id: 'sharks', de: 'Haie', en: 'Sharks' },
+      { id: 'rays', de: 'Rochen', en: 'Rays' },
+      { id: 'mammals', de: 'Meeressäuger', en: 'Mammals' },
+      { id: 'turtles', de: 'Schildkröten', en: 'Turtles' },
+      { id: 'reef', de: 'Rifffische', en: 'Reef Fish' },
+      { id: 'invert', de: 'Wirbellose', en: 'Invertebrates' }
+    ];
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+      applyTheme(currentTheme);
+      initCategoryBar();
+      renderSpeciesGrid();
+      updateStats();
+      setupEventListeners();
+      initLeafletMap();
+    });
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      localStorage.setItem('oceanlog_theme', theme);
+    }
+
+    function initCategoryBar() {
+      const bar = document.getElementById('category-bar');
+      bar.innerHTML = categories.map(c => `
+        <button class="cat-pill whitespace-nowrap px-3.5 py-1.5 rounded-full font-medium transition ${
+          activeCategory === c.id 
+            ? 'bg-appTeal text-white shadow-sm' 
+            : 'bg-slate-200 dark:bg-appCard text-slate-700 dark:text-slate-300 hover:bg-slate-300'
+        }" data-cat="${c.id}">
+          ${currentLang === 'de' ? c.de : c.en}
+        </button>
+      `).join('');
+
+      bar.querySelectorAll('.cat-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeCategory = btn.dataset.cat;
+          initCategoryBar();
+          renderSpeciesGrid();
+        });
+      });
+    }
+
+    function getAllSpecies() {
+      return [...initialSpecies, ...customSpecies];
+    }
+
+    function renderSpeciesGrid() {
+      const grid = document.getElementById('species-grid');
+      const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
+      const all = getAllSpecies();
+
+      const filtered = all.filter(s => {
+        const matchesCat = activeCategory === 'all' || s.cat === activeCategory;
+        const matchesSearch = s.de.toLowerCase().includes(searchVal) || 
+                              s.en.toLowerCase().includes(searchVal) || 
+                              s.sci.toLowerCase().includes(searchVal);
+        const isSeen = sightings.some(x => x.speciesId === s.id);
+        const matchesStatus = activeStatus === 'all' || (activeStatus === 'seen' ? isSeen : !isSeen);
+
+        return matchesCat && matchesSearch && matchesStatus;
+      });
+
+      grid.innerHTML = filtered.map(s => {
+        const isSeen = sightings.some(x => x.speciesId === s.id);
+        const displayImg = customPhotos[s.id] || s.img;
+        const displayName = currentLang === 'de' ? s.de : s.en;
+        const subName = currentLang === 'de' ? s.en : s.de;
+
+        return `
+          <div class="relative bg-white dark:bg-appCard rounded-2xl overflow-hidden border ${isSeen ? 'border-appTeal/60 ring-1 ring-appTeal/40' : 'border-slate-200 dark:border-slate-800'} shadow-sm flex flex-col justify-between transition-all duration-300">
+            <!-- Image Area -->
+            <div class="relative w-full h-36 bg-slate-900 cursor-pointer overflow-hidden" onclick="openSightingModal('${s.id}')">
+              <img src="${displayImg}" alt="${displayName}" class="w-full h-full object-cover ${isSeen ? 'seen-img' : 'unseen-img'}">
+              
+              <!-- Checkbox Top Right -->
+              <button onclick="event.stopPropagation(); toggleQuickSeen('${s.id}')" class="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition shadow-md ${isSeen ? 'bg-appTeal text-white' : 'bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm'}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+              </button>
+
+              <!-- Photo Replace Button Top Left -->
+              <button onclick="event.stopPropagation(); triggerPhotoUpload('${s.id}')" class="absolute top-2 left-2 w-7 h-7 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-sm shadow-sm transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Card Meta -->
+            <div class="p-3 cursor-pointer" onclick="openSightingModal('${s.id}')">
+              <h3 class="font-bold text-xs leading-snug line-clamp-1 text-slate-900 dark:text-slate-100">${displayName}</h3>
+              <p class="text-[11px] text-slate-500 dark:text-appTextDark italic truncate">${subName}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Add "Custom Animal" Tile
+      grid.innerHTML += `
+        <div onclick="promptAddCustomSpecies()" class="h-48 border-2 border-dashed border-slate-300 dark:border-slate-700/80 rounded-2xl flex flex-col items-center justify-center text-center p-3 cursor-pointer hover:border-appTeal transition bg-slate-50/50 dark:bg-appCard/30">
+          <div class="w-10 h-10 rounded-full bg-appTeal/10 text-appTeal flex items-center justify-center mb-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <span class="text-xs font-bold text-slate-700 dark:text-slate-300">${currentLang === 'de' ? '+ Tier hinzufügen' : '+ Add Species'}</span>
+        </div>
+      `;
+    }
+
+    function updateStats() {
+      const all = getAllSpecies();
+      const uniqueSeen = new Set(sightings.map(s => s.speciesId)).size;
+      document.getElementById('stats-counter').innerText = `${uniqueSeen} / ${all.length} ${currentLang === 'de' ? 'Arten gesichtet' : 'Species spotted'}`;
+      document.getElementById('storage-count').innerText = `${sightings.length} Einträge`;
+    }
+
+    function toggleQuickSeen(speciesId) {
+      const existing = sightings.find(s => s.speciesId === speciesId);
+      if (existing) {
+        sightings = sightings.filter(s => s.speciesId !== speciesId);
+      } else {
+        sightings.push({
+          id: 's-' + Date.now(),
+          speciesId: speciesId,
+          date: new Date().toISOString().slice(0, 16),
+          location: 'Riff / Meer',
+          lat: -17.5388,
+          lon: -149.8295,
+          depth: 12,
+          count: 1,
+          notes: 'Schnell erfasst'
+        });
+      }
+      saveData();
+      renderSpeciesGrid();
+      updateStats();
+      updateMapMarkers();
+    }
+
+    function openSightingModal(speciesId) {
+      const s = getAllSpecies().find(x => x.id === speciesId);
+      if (!s) return;
+
+      document.getElementById('modal-species-id').value = s.id;
+      document.getElementById('modal-species-title').innerText = currentLang === 'de' ? s.de : s.en;
+      document.getElementById('modal-species-sub').innerText = s.sci;
+      document.getElementById('modal-date').value = new Date().toISOString().slice(0, 16);
+      document.getElementById('modal-location').value = '';
+      document.getElementById('modal-depth').value = '';
+      document.getElementById('modal-count').value = '1';
+      document.getElementById('modal-notes').value = '';
+      document.getElementById('gps-status').innerText = '';
+
+      const modal = document.getElementById('sighting-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    // Modal Submission
+    document.getElementById('sighting-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const speciesId = document.getElementById('modal-species-id').value;
+      const date = document.getElementById('modal-date').value;
+      const location = document.getElementById('modal-location').value;
+      const depth = document.getElementById('modal-depth').value;
+      const count = document.getElementById('modal-count').value;
+      const notes = document.getElementById('modal-notes').value;
+      const lat = parseFloat(document.getElementById('sighting-form').dataset.lat) || -17.5388;
+      const lon = parseFloat(document.getElementById('sighting-form').dataset.lon) || -149.8295;
+
+      sightings.push({
+        id: 's-' + Date.now(),
+        speciesId,
+        date,
+        location,
+        lat,
+        lon,
+        depth: depth ? parseInt(depth) : null,
+        count: parseInt(count) || 1,
+        notes
+      });
+
+      saveData();
+      document.getElementById('sighting-modal').classList.add('hidden');
+      document.getElementById('sighting-modal').classList.remove('flex');
+      renderSpeciesGrid();
+      updateStats();
+      updateMapMarkers();
+    });
+
+    document.getElementById('close-modal-btn').addEventListener('click', () => {
+      document.getElementById('sighting-modal').classList.add('hidden');
+      document.getElementById('sighting-modal').classList.remove('flex');
+    });
+
+    // Nominatim Location Autocomplete
+    let searchTimeout = null;
+    const locInput = document.getElementById('modal-location');
+    const autoList = document.getElementById('autocomplete-list');
+
+    locInput.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      const q = locInput.value.trim();
+      if (q.length < 3) {
+        autoList.classList.add('hidden');
+        return;
+      }
+      searchTimeout = setTimeout(() => {
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=4`)
+          .then(res => res.json())
+          .then(data => {
+            if (!data.length) {
+              autoList.classList.add('hidden');
+              return;
+            }
+            autoList.innerHTML = data.map(item => `
+              <div class="px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer truncate border-b border-slate-100 dark:border-slate-800 text-[11px]" 
+                data-name="${item.display_name}" data-lat="${item.lat}" data-lon="${item.lon}">
+                ${item.display_name}
+              </div>
+            `).join('');
+            autoList.classList.remove('hidden');
+
+            autoList.querySelectorAll('div').forEach(el => {
+              el.addEventListener('click', () => {
+                locInput.value = el.dataset.name.split(',')[0];
+                document.getElementById('sighting-form').dataset.lat = el.dataset.lat;
+                document.getElementById('sighting-form').dataset.lon = el.dataset.lon;
+                document.getElementById('gps-status').innerText = `✓ Geodaten verknüpft`;
+                autoList.classList.add('hidden');
+              });
+            });
+          })
+          .catch(() => autoList.classList.add('hidden'));
+      }, 400);
+    });
+
+    // Device GPS Button
+    document.getElementById('get-gps-btn').addEventListener('click', () => {
+      const status = document.getElementById('gps-status');
+      status.innerText = 'Suche GPS...';
+      if (!navigator.geolocation) {
+        status.innerText = 'Nicht unterstützt';
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          document.getElementById('sighting-form').dataset.lat = pos.coords.latitude;
+          document.getElementById('sighting-form').dataset.lon = pos.coords.longitude;
+          status.innerText = `✓ ${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`;
+        },
+        () => {
+          status.innerText = 'Standort verweigert';
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    });
+
+    // Leaflet World Map
+    function initLeafletMap() {
+      map = L.map('leaflet-map').setView([-17.5388, -149.8295], 3);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+
+      markersLayer = L.layerGroup().addTo(map);
+      updateMapMarkers();
+    }
+
+    function updateMapMarkers() {
+      if (!markersLayer) return;
+      markersLayer.clearLayers();
+
+      const all = getAllSpecies();
+      sightings.forEach(s => {
+        if (s.lat && s.lon) {
+          const species = all.find(x => x.id === s.speciesId);
+          const name = species ? (currentLang === 'de' ? species.de : species.en) : 'Unbekannte Art';
+          const marker = L.circleMarker([s.lat, s.lon], {
+            radius: 8,
+            fillColor: '#00a878',
+            color: '#ffffff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.9
+          });
+
+          marker.bindPopup(`
+            <div class="text-xs p-1">
+              <strong class="text-appTeal text-sm block mb-1">${name}</strong>
+              <div>📅 ${s.date ? s.date.replace('T', ' ') : '-'}</div>
+              <div>📍 ${s.location}</div>
+              ${s.depth ? `<div>🌊 ${s.depth}m Tiefe</div>` : ''}
+              ${s.notes ? `<div class="mt-1 text-slate-300 italic">"${s.notes}"</div>` : ''}
+            </div>
+          `);
+          markersLayer.addLayer(marker);
+        }
+      });
+    }
+
+    // Photo Replacement via Canvas Scaling
+    function triggerPhotoUpload(speciesId) {
+      targetPhotoSpeciesId = speciesId;
+      document.getElementById('photo-upload-input').click();
+    }
+
+    document.getElementById('photo-upload-input').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file || !targetPhotoSpeciesId) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 450;
+          let w = img.width;
+          let h = img.height;
+          if (w > h && w > maxDim) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else if (h > maxDim) {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          const compressed = canvas.toDataURL('image/jpeg', 0.8);
+
+          customPhotos[targetPhotoSpeciesId] = compressed;
+          localStorage.setItem('oceanlog_photos', JSON.stringify(customPhotos));
+          renderSpeciesGrid();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Custom Species Creation Prompt
+    function promptAddCustomSpecies() {
+      const deName = prompt(currentLang === 'de' ? 'Deutscher Name des Tiers:' : 'Species Name (DE):');
+      if (!deName) return;
+      const enName = prompt(currentLang === 'de' ? 'Englischer Name:' : 'English Name:') || deName;
+      const sciName = prompt('Wissenschaftlicher Name (optional):') || 'Species sp.';
+
+      const newAnimal = {
+        id: 'custom-' + Date.now(),
+        cat: activeCategory === 'all' ? 'reef' : activeCategory,
+        de: deName,
+        en: enName,
+        sci: sciName,
+        img: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80'
+      };
+
+      customSpecies.push(newAnimal);
+      localStorage.setItem('oceanlog_custom', JSON.stringify(customSpecies));
+      renderSpeciesGrid();
+      updateStats();
+    }
+
+    function saveData() {
+      localStorage.setItem('oceanlog_sightings', JSON.stringify(sightings));
+    }
+
+    // Navigation and Tab Switching
+    function setupEventListeners() {
+      // Bottom Navigation Tabs
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.dataset.tab;
+          document.getElementById('catalog-view').classList.add('hidden');
+          document.getElementById('map-view').classList.add('hidden');
+          document.getElementById('backup-view').classList.add('hidden');
+          document.getElementById(tab).classList.remove('hidden');
+
+          document.querySelectorAll('.nav-btn').forEach(b => {
+            b.classList.remove('text-appTeal');
+            b.classList.add('text-slate-500', 'dark:text-appTextDark');
+          });
+          btn.classList.add('text-appTeal');
+          btn.classList.remove('text-slate-500', 'dark:text-appTextDark');
+
+          if (tab === 'map-view' && map) {
+            setTimeout(() => {
+              map.invalidateSize();
+              updateMapMarkers();
+            }, 200);
+          }
+        });
+      });
+
+      // Search & Status Filters
+      document.getElementById('search-input').addEventListener('input', renderSpeciesGrid);
+      document.querySelectorAll('.status-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.status-btn').forEach(b => {
+            b.classList.remove('bg-appTeal', 'text-white');
+            b.classList.add('bg-slate-200', 'dark:bg-appCard', 'text-slate-700', 'dark:text-slate-300');
+          });
+          btn.classList.add('bg-appTeal', 'text-white');
+          btn.classList.remove('bg-slate-200', 'dark:bg-appCard', 'text-slate-700', 'dark:text-slate-300');
+          activeStatus = btn.dataset.status;
+          renderSpeciesGrid();
+        });
+      });
+
+      // Language Switcher
+      document.getElementById('lang-btn').addEventListener('click', () => {
+        currentLang = currentLang === 'de' ? 'en' : 'de';
+        document.getElementById('lang-btn').innerText = currentLang === 'de' ? 'EN' : 'DE';
+        localStorage.setItem('oceanlog_lang', currentLang);
+        initCategoryBar();
+        renderSpeciesGrid();
+        updateStats();
+      });
+
+      // Theme Switcher
+      document.getElementById('theme-btn').addEventListener('click', () => {
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(currentTheme);
+      });
+
+      // Scroll to Top Button
+      window.addEventListener('scroll', () => {
+        const btn = document.getElementById('scroll-top-btn');
+        if (window.scrollY > 300) {
+          btn.classList.remove('hidden');
+        } else {
+          btn.classList.add('hidden');
+        }
+      });
+      document.getElementById('scroll-top-btn').addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // Backup Export
+      document.getElementById('export-btn').addEventListener('click', () => {
+        const payload = {
+          sightings,
+          customSpecies,
+          customPhotos,
+          exportDate: new Date().toISOString()
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `OceanLog_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Backup Import
+      document.getElementById('import-file').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            if (data.sightings) sightings = data.sightings;
+            if (data.customSpecies) customSpecies = data.customSpecies;
+            if (data.customPhotos) customPhotos = data.customPhotos;
+            saveData();
+            localStorage.setItem('oceanlog_custom', JSON.stringify(customSpecies));
+            localStorage.setItem('oceanlog_photos', JSON.stringify(customPhotos));
+            renderSpeciesGrid();
+            updateStats();
+            updateMapMarkers();
+            alert('Backup erfolgreich wiederhergestellt!');
+          } catch {
+            alert('Ungültige Backup-Datei.');
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      // Center Map Button
+      document.getElementById('reset-map-btn').addEventListener('click', () => {
+        if (map) map.setView([-17.5388, -149.8295], 3);
+      });
+    }
+  </script>
+</body>
+</html>
