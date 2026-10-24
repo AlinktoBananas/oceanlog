@@ -62,7 +62,6 @@
   <header class="sticky top-0 z-40 bg-white/95 dark:bg-appDark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 px-4 py-3">
     <div class="max-w-md mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <!-- Wellen-Icon -->
         <div class="w-10 h-10 rounded-xl bg-appTeal flex items-center justify-center text-white shadow-lg shadow-appTeal/20">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 8c2.5-2 5.5-2 8 0s5.5 2 8 0M3 13c2.5-2 5.5-2 8 0s5.5 2 8 0M3 18c2.5-2 5.5-2 8 0s5.5 2 8 0" />
@@ -194,22 +193,31 @@
     </svg>
   </button>
 
-  <!-- Sighting Modal -->
+  <!-- Modal: Sighting Log mit Tierbild oben -->
   <div id="sighting-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white dark:bg-appCard w-full max-w-md rounded-t-3xl sm:rounded-2xl max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 p-5 shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 id="modal-species-title" class="text-base font-bold text-slate-900 dark:text-slate-100">Sichtung eintragen</h3>
-          <p id="modal-species-sub" class="text-xs text-slate-500 dark:text-appTextDark italic"></p>
-        </div>
-        <button id="close-modal-btn" class="p-1 rounded-full text-slate-400 hover:text-slate-200">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    <div class="bg-white dark:bg-appCard w-full max-w-md rounded-t-3xl sm:rounded-2xl max-h-[92vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col">
+      
+      <!-- Tier-Bannerbild im Modal -->
+      <div class="relative w-full h-44 bg-slate-950 flex-shrink-0 overflow-hidden">
+        <img id="modal-species-img" src="" alt="Tierbild" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+        
+        <!-- Schließen-Button oben rechts auf dem Bild -->
+        <button id="close-modal-btn" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center backdrop-blur-md shadow-md transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
+
+        <!-- Titel & Artname auf dem Bannerbild platziert -->
+        <div class="absolute bottom-3 left-4 right-4">
+          <h3 id="modal-species-title" class="text-lg font-bold text-white drop-shadow-md leading-tight"></h3>
+          <p id="modal-species-sub" class="text-xs text-emerald-300 italic drop-shadow-md"></p>
+        </div>
       </div>
 
-      <form id="sighting-form" class="space-y-3 pt-3 text-xs">
+      <!-- Formularbereich -->
+      <form id="sighting-form" class="space-y-3 p-5 text-xs">
         <input type="hidden" id="modal-species-id">
 
         <div>
@@ -263,7 +271,6 @@
   <input type="file" id="photo-upload-input" accept="image/*" class="hidden">
 
   <script>
-    // Feste Basis-Liste mit verifizierten wissenschaftlichen Taxon-Namen
     const initialSpecies = [
       // === HAIE ===
       { id: 'sh-1', cat: 'sharks', de: 'Walhai', en: 'Whale Shark', sci: 'Rhincodon typus', wiki: 'Whale_shark' },
@@ -439,7 +446,10 @@
       return [...initialSpecies, ...customSpecies];
     }
 
-    // Lädt automatisch jedes fehlende Wikipedia-Bild einmalig und speichert es dauerhaft
+    function getSpeciesImage(s) {
+      return customPhotos[s.id] || cachedWikiImages[s.id] || s.img || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80';
+    }
+
     async function fetchMissingWikiThumbnails() {
       const all = getAllSpecies();
       let updated = false;
@@ -457,9 +467,7 @@
                 if (imgEl) imgEl.src = data.thumbnail.source;
               }
             }
-          } catch (e) {
-            // Ignorieren falls offline
-          }
+          } catch (e) {}
         }
       }
 
@@ -486,7 +494,7 @@
 
       grid.innerHTML = filtered.map(s => {
         const isSeen = sightings.some(x => x.speciesId === s.id);
-        const displayImg = customPhotos[s.id] || cachedWikiImages[s.id] || s.img || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80';
+        const displayImg = getSpeciesImage(s);
         const displayName = currentLang === 'de' ? s.de : s.en;
         const subName = currentLang === 'de' ? s.en : s.de;
 
@@ -559,9 +567,15 @@
       updateMapMarkers();
     }
 
+    // Modal mit Bild öffnen
     function openSightingModal(speciesId) {
       const s = getAllSpecies().find(x => x.id === speciesId);
       if (!s) return;
+
+      const isSeen = sightings.some(x => x.speciesId === s.id);
+      const imgEl = document.getElementById('modal-species-img');
+      imgEl.src = getSpeciesImage(s);
+      imgEl.className = `w-full h-full object-cover ${isSeen ? 'seen-img' : 'unseen-img'}`;
 
       document.getElementById('modal-species-id').value = s.id;
       document.getElementById('modal-species-title').innerText = currentLang === 'de' ? s.de : s.en;
@@ -862,7 +876,6 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
-      // Backup Export
       document.getElementById('export-btn').addEventListener('click', () => {
         const payload = {
           sightings,
@@ -879,7 +892,6 @@
         URL.revokeObjectURL(url);
       });
 
-      // Backup Import
       document.getElementById('import-file').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
