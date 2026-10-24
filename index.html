@@ -263,113 +263,111 @@
   <input type="file" id="photo-upload-input" accept="image/*" class="hidden">
 
   <script>
-    // Wikipedia Special:FilePath liefert saubere, hochauflösende Thumbnails ohne Hash-Probleme
-    const wpImg = (filename) => `https://en.wikipedia.org/wiki/Special:FilePath/${encodeURIComponent(filename)}?width=450`;
-
+    // Feste Basis-Liste mit verifizierten wissenschaftlichen Taxon-Namen
     const initialSpecies = [
-      // === HAIE (SHARKS) ===
-      { id: 'sh-1', cat: 'sharks', de: 'Walhai', en: 'Whale Shark', sci: 'Rhincodon typus', img: wpImg('Whale shark Georgia aquarium.jpg') },
-      { id: 'sh-2', cat: 'sharks', de: 'Weißspitzen-Riffhai', en: 'Whitetip Reef Shark', sci: 'Triaenodon obesus', img: wpImg('Triaenodon obesus Similan.JPG') },
-      { id: 'sh-3', cat: 'sharks', de: 'Schwarzspitzen-Riffhai', en: 'Blacktip Reef Shark', sci: 'Carcharhinus melanopterus', img: wpImg('Blacktip reef shark maldives.jpg') },
-      { id: 'sh-4', cat: 'sharks', de: 'Grauer Riffhai', en: 'Grey Reef Shark', sci: 'Carcharhinus amblyrhynchos', img: wpImg('Carcharhinus amblyrhynchos noaa.jpg') },
-      { id: 'sh-5', cat: 'sharks', de: 'Großer Hammerhai', en: 'Great Hammerhead', sci: 'Sphyrna mokarran', img: wpImg('Sphyrna mokarran bimini.jpg') },
-      { id: 'sh-6', cat: 'sharks', de: 'Bogenstirn-Hammerhai', en: 'Scalloped Hammerhead', sci: 'Sphyrna lewini', img: wpImg('Scalloped hammerhead shark (Sphyrna lewini) (6047242971).jpg') },
-      { id: 'sh-7', cat: 'sharks', de: 'Tigerhai', en: 'Tiger Shark', sci: 'Galeocerdo cuvier', img: wpImg('Tiger shark.jpg') },
-      { id: 'sh-8', cat: 'sharks', de: 'Bullenhai', en: 'Bull Shark', sci: 'Carcharhinus leucas', img: wpImg('Bullshark Playa del Carmen.JPG') },
-      { id: 'sh-9', cat: 'sharks', de: 'Zebrahai / Leopardenhai', en: 'Zebra Shark', sci: 'Stegostoma tigrinum', img: wpImg('Stegostoma fasciatum Similan.JPG') },
-      { id: 'sh-10', cat: 'sharks', de: 'Pelagischer Fuchshai', en: 'Pelagic Thresher Shark', sci: 'Alopias pelagicus', img: wpImg('Pelagic thresher Malapascua.jpg') },
-      { id: 'sh-11', cat: 'sharks', de: 'Atlantischer Ammenhai', en: 'Nurse Shark', sci: 'Ginglymostoma cirratum', img: wpImg('Nurse shark Belize.jpg') },
-      { id: 'sh-12', cat: 'sharks', de: 'Weißspitzen-Hochseehai', en: 'Oceanic Whitetip Shark', sci: 'Carcharhinus longimanus', img: wpImg('Oceanic whitetip shark red sea.jpg') },
-      { id: 'sh-13', cat: 'sharks', de: 'Silberspitzenhai', en: 'Silvertip Shark', sci: 'Carcharhinus albimarginatus', img: wpImg('Carcharhinus albimarginatus yap.jpg') },
-      { id: 'sh-14', cat: 'sharks', de: 'Seidenhai', en: 'Silky Shark', sci: 'Carcharhinus falciformis', img: wpImg('Silky shark cuba.jpg') },
-      { id: 'sh-15', cat: 'sharks', de: 'Fransen-Teppichhai', en: 'Tasselled Wobbegong', sci: 'Eucrossorhinus dasypogon', img: wpImg('Eucrossorhinus dasypogon raja ampat.jpg') },
-      { id: 'sh-16', cat: 'sharks', de: 'Weißer Hai', en: 'Great White Shark', sci: 'Carcharodon carcharias', img: wpImg('White shark.jpg') },
-      { id: 'sh-17', cat: 'sharks', de: 'Blauhai', en: 'Blue Shark', sci: 'Prionace glauca', img: wpImg('Prionace glauca 1.jpg') },
+      // === HAIE ===
+      { id: 'sh-1', cat: 'sharks', de: 'Walhai', en: 'Whale Shark', sci: 'Rhincodon typus', wiki: 'Whale_shark' },
+      { id: 'sh-2', cat: 'sharks', de: 'Weißspitzen-Riffhai', en: 'Whitetip Reef Shark', sci: 'Triaenodon obesus', wiki: 'Whitetip_reef_shark' },
+      { id: 'sh-3', cat: 'sharks', de: 'Schwarzspitzen-Riffhai', en: 'Blacktip Reef Shark', sci: 'Carcharhinus melanopterus', wiki: 'Blacktip_reef_shark' },
+      { id: 'sh-4', cat: 'sharks', de: 'Grauer Riffhai', en: 'Grey Reef Shark', sci: 'Carcharhinus amblyrhynchos', wiki: 'Grey_reef_shark' },
+      { id: 'sh-5', cat: 'sharks', de: 'Großer Hammerhai', en: 'Great Hammerhead', sci: 'Sphyrna mokarran', wiki: 'Great_hammerhead' },
+      { id: 'sh-6', cat: 'sharks', de: 'Bogenstirn-Hammerhai', en: 'Scalloped Hammerhead', sci: 'Sphyrna lewini', wiki: 'Scalloped_hammerhead' },
+      { id: 'sh-7', cat: 'sharks', de: 'Tigerhai', en: 'Tiger Shark', sci: 'Galeocerdo cuvier', wiki: 'Tiger_shark' },
+      { id: 'sh-8', cat: 'sharks', de: 'Bullenhai', en: 'Bull Shark', sci: 'Carcharhinus leucas', wiki: 'Bull_shark' },
+      { id: 'sh-9', cat: 'sharks', de: 'Zebrahai / Leopardenhai', en: 'Zebra Shark', sci: 'Stegostoma tigrinum', wiki: 'Zebra_shark' },
+      { id: 'sh-10', cat: 'sharks', de: 'Pelagischer Fuchshai', en: 'Pelagic Thresher', sci: 'Alopias pelagicus', wiki: 'Pelagic_thresher' },
+      { id: 'sh-11', cat: 'sharks', de: 'Atlantischer Ammenhai', en: 'Nurse Shark', sci: 'Ginglymostoma cirratum', wiki: 'Nurse_shark' },
+      { id: 'sh-12', cat: 'sharks', de: 'Weißspitzen-Hochseehai', en: 'Oceanic Whitetip Shark', sci: 'Carcharhinus longimanus', wiki: 'Oceanic_whitetip_shark' },
+      { id: 'sh-13', cat: 'sharks', de: 'Silberspitzenhai', en: 'Silvertip Shark', sci: 'Carcharhinus albimarginatus', wiki: 'Silvertip_shark' },
+      { id: 'sh-14', cat: 'sharks', de: 'Seidenhai', en: 'Silky Shark', sci: 'Carcharhinus falciformis', wiki: 'Silky_shark' },
+      { id: 'sh-15', cat: 'sharks', de: 'Fransen-Teppichhai', en: 'Tasselled Wobbegong', sci: 'Eucrossorhinus dasypogon', wiki: 'Tasselled_wobbegong' },
+      { id: 'sh-16', cat: 'sharks', de: 'Weißer Hai', en: 'Great White Shark', sci: 'Carcharodon carcharias', wiki: 'Great_white_shark' },
+      { id: 'sh-17', cat: 'sharks', de: 'Blauhai', en: 'Blue Shark', sci: 'Prionace glauca', wiki: 'Blue_shark' },
 
-      // === ROCHEN (RAYS) ===
-      { id: 'ra-1', cat: 'rays', de: 'Riffmanta', en: 'Reef Manta Ray', sci: 'Mobula alfredi', img: wpImg('Manta alfredi kona.jpg') },
-      { id: 'ra-2', cat: 'rays', de: 'Riesenmanta', en: 'Giant Oceanic Manta Ray', sci: 'Mobula birostris', img: wpImg('Giant Manta Ray (Mobula birostris).jpg') },
-      { id: 'ra-3', cat: 'rays', de: 'Gefleckter Adlerrochen', en: 'Spotted Eagle Ray', sci: 'Aetobatus narinari', img: wpImg('Aetobatus narinari Belize.jpg') },
-      { id: 'ra-4', cat: 'rays', de: 'Blaupunkt-Stechrochen', en: 'Bluespotted Ribbontail Ray', sci: 'Taeniura lymma', img: wpImg('Bluespotted ribbontail ray red sea.jpg') },
-      { id: 'ra-5', cat: 'rays', de: 'Federschwanz-Stechrochen', en: 'Feather-tail Stingray', sci: 'Pastinachus sephen', img: wpImg('Pastinachus sephen maldives.jpg') },
-      { id: 'ra-6', cat: 'rays', de: 'Rundkopf-Geigenrochen', en: 'Bowmouth Guitarfish', sci: 'Rhina ancylostoma', img: wpImg('Bowmouth Guitarfish (Rhina ancylostoma).jpg') },
-      { id: 'ra-7', cat: 'rays', de: 'Blauer Stechrochen', en: 'Common Stingray', sci: 'Dasyatis pastinaca', img: wpImg('Dasyatis pastinaca tenerife.jpg') },
-      { id: 'ra-8', cat: 'rays', de: 'Marmor-Zitterrochen', en: 'Marbled Electric Ray', sci: 'Torpedo marmorata', img: wpImg('Torpedo marmorata croatia.jpg') },
-      { id: 'ra-9', cat: 'rays', de: 'Kuhnasenrochen', en: 'Cownose Ray', sci: 'Rhinoptera bonasus', img: wpImg('Rhinoptera bonasus aquarium.jpg') },
+      // === ROCHEN ===
+      { id: 'ra-1', cat: 'rays', de: 'Riffmanta', en: 'Reef Manta Ray', sci: 'Mobula alfredi', wiki: 'Reef_manta_ray' },
+      { id: 'ra-2', cat: 'rays', de: 'Riesenmanta', en: 'Giant Manta Ray', sci: 'Mobula birostris', wiki: 'Giant_oceanic_manta_ray' },
+      { id: 'ra-3', cat: 'rays', de: 'Gefleckter Adlerrochen', en: 'Spotted Eagle Ray', sci: 'Aetobatus narinari', wiki: 'Spotted_eagle_ray' },
+      { id: 'ra-4', cat: 'rays', de: 'Blaupunkt-Stechrochen', en: 'Bluespotted Ribbontail Ray', sci: 'Taeniura lymma', wiki: 'Bluespotted_ribbontail_ray' },
+      { id: 'ra-5', cat: 'rays', de: 'Federschwanz-Stechrochen', en: 'Feathertail Stingray', sci: 'Pastinachus sephen', wiki: 'Pastinachus_sephen' },
+      { id: 'ra-6', cat: 'rays', de: 'Rundkopf-Geigenrochen', en: 'Bowmouth Guitarfish', sci: 'Rhina ancylostoma', wiki: 'Bowmouth_guitarfish' },
+      { id: 'ra-7', cat: 'rays', de: 'Gewöhnlicher Stechrochen', en: 'Common Stingray', sci: 'Dasyatis pastinaca', wiki: 'Common_stingray' },
+      { id: 'ra-8', cat: 'rays', de: 'Marmor-Zitterrochen', en: 'Marbled Electric Ray', sci: 'Torpedo marmorata', wiki: 'Marbled_electric_ray' },
+      { id: 'ra-9', cat: 'rays', de: 'Kuhnasenrochen', en: 'Cownose Ray', sci: 'Rhinoptera bonasus', wiki: 'Cownose_ray' },
 
-      // === SCHILDKRÖTEN (TURTLES) ===
-      { id: 'tu-1', cat: 'turtles', de: 'Grüne Meeresschildkröte', en: 'Green Sea Turtle', sci: 'Chelonia mydas', img: wpImg('Chelonia mydas hawaii.jpg') },
-      { id: 'tu-2', cat: 'turtles', de: 'Echte Karettschildkröte', en: 'Hawksbill Sea Turtle', sci: 'Eretmochelys imbricata', img: wpImg('Eretmochelys imbricata similan.JPG') },
-      { id: 'tu-3', cat: 'turtles', de: 'Unechte Karettschildkröte', en: 'Loggerhead Sea Turtle', sci: 'Caretta caretta', img: wpImg('Caretta caretta zakynthos.jpg') },
-      { id: 'tu-4', cat: 'turtles', de: 'Lederschildkröte', en: 'Leatherback Sea Turtle', sci: 'Dermochelys coriacea', img: wpImg('Leatherback sea turtle underwater.jpg') },
-      { id: 'tu-5', cat: 'turtles', de: 'Oliv-Bastardschildkröte', en: 'Olive Ridley Sea Turtle', sci: 'Lepidochelys olivacea', img: wpImg('Lepidochelys olivacea.jpg') },
+      // === SCHILDKRÖTEN ===
+      { id: 'tu-1', cat: 'turtles', de: 'Grüne Meeresschildkröte', en: 'Green Sea Turtle', sci: 'Chelonia mydas', wiki: 'Green_sea_turtle' },
+      { id: 'tu-2', cat: 'turtles', de: 'Echte Karettschildkröte', en: 'Hawksbill Sea Turtle', sci: 'Eretmochelys imbricata', wiki: 'Hawksbill_sea_turtle' },
+      { id: 'tu-3', cat: 'turtles', de: 'Unechte Karettschildkröte', en: 'Loggerhead Sea Turtle', sci: 'Caretta caretta', wiki: 'Loggerhead_sea_turtle' },
+      { id: 'tu-4', cat: 'turtles', de: 'Lederschildkröte', en: 'Leatherback Sea Turtle', sci: 'Dermochelys coriacea', wiki: 'Leatherback_sea_turtle' },
+      { id: 'tu-5', cat: 'turtles', de: 'Oliv-Bastardschildkröte', en: 'Olive Ridley Sea Turtle', sci: 'Lepidochelys olivacea', wiki: 'Olive_ridley_sea_turtle' },
 
-      // === MEERESSÄUGER (MAMMALS) ===
-      { id: 'ma-1', cat: 'mammals', de: 'Großer Tümmler', en: 'Bottlenose Dolphin', sci: 'Tursiops truncatus', img: wpImg('Tursiops truncatus 01.jpg') },
-      { id: 'ma-2', cat: 'mammals', de: 'Spinner-Delfin', en: 'Spinner Dolphin', sci: 'Stenella longirostris', img: wpImg('Spinner dolphins hawaii.jpg') },
-      { id: 'ma-3', cat: 'mammals', de: 'Buckelwal', en: 'Humpback Whale', sci: 'Megaptera novaeangliae', img: wpImg('Humpback Whale underwater shot.jpg') },
-      { id: 'ma-4', cat: 'mammals', de: 'Dugong / Gabel-Seekuh', en: 'Dugong', sci: 'Dugong dugon', img: wpImg('Dugong marsa alam.jpg') },
-      { id: 'ma-5', cat: 'mammals', de: 'Karibik-Manati', en: 'West Indian Manatee', sci: 'Trichechus manatus', img: wpImg('Manatee at crystal river.jpg') },
-      { id: 'ma-6', cat: 'mammals', de: 'Kalifornischer Seelöwe', en: 'California Sea Lion', sci: 'Zalophus californianus', img: wpImg('California sea lion la jolla.jpg') },
-      { id: 'ma-7', cat: 'mammals', de: 'Schwertwal (Orca)', en: 'Killer Whale', sci: 'Orcinus orca', img: wpImg('Orca underwater.jpg') },
-      { id: 'ma-8', cat: 'mammals', de: 'Pottwal', en: 'Sperm Whale', sci: 'Physeter macrocephalus', img: wpImg('Mother and baby sperm whale.jpg') },
+      // === SÄUGER ===
+      { id: 'ma-1', cat: 'mammals', de: 'Großer Tümmler', en: 'Bottlenose Dolphin', sci: 'Tursiops truncatus', wiki: 'Common_bottlenose_dolphin' },
+      { id: 'ma-2', cat: 'mammals', de: 'Spinner-Delfin', en: 'Spinner Dolphin', sci: 'Stenella longirostris', wiki: 'Spinner_dolphin' },
+      { id: 'ma-3', cat: 'mammals', de: 'Buckelwal', en: 'Humpback Whale', sci: 'Megaptera novaeangliae', wiki: 'Humpback_whale' },
+      { id: 'ma-4', cat: 'mammals', de: 'Dugong / Gabel-Seekuh', en: 'Dugong', sci: 'Dugong dugon', wiki: 'Dugong' },
+      { id: 'ma-5', cat: 'mammals', de: 'Karibik-Manati', en: 'West Indian Manatee', sci: 'Trichechus manatus', wiki: 'West_Indian_manatee' },
+      { id: 'ma-6', cat: 'mammals', de: 'Kalifornischer Seelöwe', en: 'California Sea Lion', sci: 'Zalophus californianus', wiki: 'California_sea_lion' },
+      { id: 'ma-7', cat: 'mammals', de: 'Schwertwal (Orca)', en: 'Killer Whale', sci: 'Orcinus orca', wiki: 'Orca' },
+      { id: 'ma-8', cat: 'mammals', de: 'Pottwal', en: 'Sperm Whale', sci: 'Physeter macrocephalus', wiki: 'Sperm_whale' },
 
-      // === PELAGISCHE FISCHE (PELAGIC) ===
-      { id: 'pe-1', cat: 'pelagic', de: 'Großer Barrakuda', en: 'Great Barracuda', sci: 'Sphyraena barracuda', img: wpImg('Sphyraena barracuda noaa.jpg') },
-      { id: 'pe-2', cat: 'pelagic', de: 'Mondfisch (Mola Mola)', en: 'Ocean Sunfish', sci: 'Mola mola', img: wpImg('Sunfish2.jpg') },
-      { id: 'pe-3', cat: 'pelagic', de: 'Riesen-Makrele (GT)', en: 'Giant Trevally', sci: 'Caranx ignobilis', img: wpImg('Caranx ignobilis albatross.jpg') },
-      { id: 'pe-4', cat: 'pelagic', de: 'Rundkopf-Fledermausfisch', en: 'Orbicular Batfish', sci: 'Platax orbicularis', img: wpImg('Platax orbicularis maldives.jpg') },
-      { id: 'pe-5', cat: 'pelagic', de: 'Gelbflossen-Thun', en: 'Yellowfin Tuna', sci: 'Thunnus albacares', img: wpImg('Yellowfin tuna.jpg') },
-      { id: 'pe-6', cat: 'pelagic', de: 'Atlantischer Tarpun', en: 'Atlantic Tarpon', sci: 'Megalops atlanticus', img: wpImg('Tarpon bonaire.jpg') },
-      { id: 'pe-7', cat: 'pelagic', de: 'Blauflossen-Makrele', en: 'Bluefin Trevally', sci: 'Caranx melampygus', img: wpImg('Caranx melampygus hawaii.jpg') },
-      { id: 'pe-8', cat: 'pelagic', de: 'Segelfisch (Fächerfisch)', en: 'Indo-Pacific Sailfish', sci: 'Istiophorus platypterus', img: wpImg('Sailfish isla mujeres.jpg') },
-      { id: 'pe-9', cat: 'pelagic', de: 'Schiffshalter (Remora)', en: 'Sharksucker', sci: 'Echeneis naucrates', img: wpImg('Echeneis naucrates red sea.jpg') },
-      { id: 'pe-10', cat: 'pelagic', de: 'Kobia (Offiziersbarsch)', en: 'Cobia', sci: 'Rachycentron canadum', img: wpImg('Rachycentron canadum.jpg') },
+      // === PELAGISCH ===
+      { id: 'pe-1', cat: 'pelagic', de: 'Großer Barrakuda', en: 'Great Barracuda', sci: 'Sphyraena barracuda', wiki: 'Great_barracuda' },
+      { id: 'pe-2', cat: 'pelagic', de: 'Mondfisch (Mola Mola)', en: 'Ocean Sunfish', sci: 'Mola mola', wiki: 'Ocean_sunfish' },
+      { id: 'pe-3', cat: 'pelagic', de: 'Riesen-Makrele (GT)', en: 'Giant Trevally', sci: 'Caranx ignobilis', wiki: 'Giant_trevally' },
+      { id: 'pe-4', cat: 'pelagic', de: 'Rundkopf-Fledermausfisch', en: 'Orbicular Batfish', sci: 'Platax orbicularis', wiki: 'Platax_orbicularis' },
+      { id: 'pe-5', cat: 'pelagic', de: 'Gelbflossen-Thun', en: 'Yellowfin Tuna', sci: 'Thunnus albacares', wiki: 'Yellowfin_tuna' },
+      { id: 'pe-6', cat: 'pelagic', de: 'Atlantischer Tarpun', en: 'Atlantic Tarpon', sci: 'Megalops atlanticus', wiki: 'Atlantic_tarpon' },
+      { id: 'pe-7', cat: 'pelagic', de: 'Blauflossen-Makrele', en: 'Bluefin Trevally', sci: 'Caranx melampygus', wiki: 'Bluefin_trevally' },
+      { id: 'pe-8', cat: 'pelagic', de: 'Segelfisch (Fächerfisch)', en: 'Indo-Pacific Sailfish', sci: 'Istiophorus platypterus', wiki: 'Indo-Pacific_sailfish' },
+      { id: 'pe-9', cat: 'pelagic', de: 'Schiffshalter (Remora)', en: 'Sharksucker', sci: 'Echeneis naucrates', wiki: 'Live_sharksucker' },
+      { id: 'pe-10', cat: 'pelagic', de: 'Kobia', en: 'Cobia', sci: 'Rachycentron canadum', wiki: 'Cobia' },
 
-      // === RIFFFISCHE (REEF FISH) ===
-      { id: 'rf-1', cat: 'reef', de: 'Echter Clownfisch', en: 'Ocellaris Clownfish', sci: 'Amphiprion ocellaris', img: wpImg('Amphiprion ocellaris clownfish.jpg') },
-      { id: 'rf-2', cat: 'reef', de: 'Titan-Drückerfisch', en: 'Titan Triggerfish', sci: 'Balistoides viridescens', img: wpImg('Titan triggerfish red sea.jpg') },
-      { id: 'rf-3', cat: 'reef', de: 'Napoleon-Lippfisch', en: 'Humphead Wrasse', sci: 'Cheilinus undulatus', img: wpImg('Cheilinus undulatus red sea.jpg') },
-      { id: 'rf-4', cat: 'reef', de: 'Riesen-Zackenbarsch', en: 'Giant Grouper', sci: 'Epinephelus lanceolatus', img: wpImg('Epinephelus lanceolatus georgia.jpg') },
-      { id: 'rf-5', cat: 'reef', de: 'Pfauen-Kaiserfisch', en: 'Regal Angelfish', sci: 'Pygoplites diacanthus', img: wpImg('Pygoplites diacanthus red sea.jpg') },
-      { id: 'rf-6', cat: 'reef', de: 'Imperator-Kaiserfisch', en: 'Emperor Angelfish', sci: 'Pomacanthus imperator', img: wpImg('Pomacanthus imperator red sea.jpg') },
-      { id: 'rf-7', cat: 'reef', de: 'Picasso-Drückerfisch', en: 'Picasso Triggerfish', sci: 'Rhinecanthus aculeatus', img: wpImg('Rhinecanthus aculeatus hawaii.jpg') },
-      { id: 'rf-8', cat: 'reef', de: 'Paletten-Doktorfisch', en: 'Blue Tang', sci: 'Paracanthurus hepatus', img: wpImg('Paracanthurus hepatus aquarium.jpg') },
-      { id: 'rf-9', cat: 'reef', de: 'Rotfeuerfisch', en: 'Red Lionfish', sci: 'Pterois volitans', img: wpImg('Pterois volitans manado.jpg') },
-      { id: 'rf-10', cat: 'reef', de: 'Echter Steinfisch', en: 'Reef Stonefish', sci: 'Synanceia verrucosa', img: wpImg('Synanceia verrucosa red sea.jpg') },
-      { id: 'rf-11', cat: 'reef', de: 'Riesenmuräne', en: 'Giant Moray', sci: 'Gymnothorax javanicus', img: wpImg('Gymnothorax javanicus red sea.jpg') },
-      { id: 'rf-12', cat: 'reef', de: 'Geistermuräne', en: 'Ribbon Eel', sci: 'Rhinomuraena quaesita', img: wpImg('Rhinomuraena quaesita bunaken.jpg') },
-      { id: 'rf-13', cat: 'reef', de: 'Büffelkopf-Papageifisch', en: 'Green Humphead Parrotfish', sci: 'Bolbometopon muricatum', img: wpImg('Bolbometopon muricatum sipadan.jpg') },
-      { id: 'rf-14', cat: 'reef', de: 'Gelbbrauner Kofferfisch', en: 'Yellow Boxfish', sci: 'Ostracion cubicus', img: wpImg('Ostracion cubicus red sea.jpg') },
-      { id: 'rf-15', cat: 'reef', de: 'Gepunkteter Igelfisch', en: 'Spot-fin Porcupinefish', sci: 'Diodon hystrix', img: wpImg('Diodon hystrix hawaii.jpg') },
-      { id: 'rf-16', cat: 'reef', de: 'Wimpelfisch', en: 'Schooling Bannerfish', sci: 'Heniochus diphreutes', img: wpImg('Heniochus diphreutes.jpg') },
-      { id: 'rf-17', cat: 'reef', de: 'Masken-Falterfisch', en: 'Bluecheek Butterflyfish', sci: 'Chaetodon semilarvatus', img: wpImg('Chaetodon semilarvatus red sea.jpg') },
-      { id: 'rf-18', cat: 'reef', de: 'Gemeiner Trompetenfisch', en: 'Trumpetfish', sci: 'Aulostomus maculatus', img: wpImg('Aulostomus maculatus bonaire.jpg') },
+      // === RIFFFISCHE ===
+      { id: 'rf-1', cat: 'reef', de: 'Echter Clownfisch', en: 'Ocellaris Clownfish', sci: 'Amphiprion ocellaris', wiki: 'Ocellaris_clownfish' },
+      { id: 'rf-2', cat: 'reef', de: 'Titan-Drückerfisch', en: 'Titan Triggerfish', sci: 'Balistoides viridescens', wiki: 'Titan_triggerfish' },
+      { id: 'rf-3', cat: 'reef', de: 'Napoleon-Lippfisch', en: 'Humphead Wrasse', sci: 'Cheilinus undulatus', wiki: 'Humphead_wrasse' },
+      { id: 'rf-4', cat: 'reef', de: 'Riesen-Zackenbarsch', en: 'Giant Grouper', sci: 'Epinephelus lanceolatus', wiki: 'Giant_grouper' },
+      { id: 'rf-5', cat: 'reef', de: 'Pfauen-Kaiserfisch', en: 'Regal Angelfish', sci: 'Pygoplites diacanthus', wiki: 'Regal_angelfish' },
+      { id: 'rf-6', cat: 'reef', de: 'Imperator-Kaiserfisch', en: 'Emperor Angelfish', sci: 'Pomacanthus imperator', wiki: 'Emperor_angelfish' },
+      { id: 'rf-7', cat: 'reef', de: 'Picasso-Drückerfisch', en: 'Picasso Triggerfish', sci: 'Rhinecanthus aculeatus', wiki: 'Lagoon_triggerfish' },
+      { id: 'rf-8', cat: 'reef', de: 'Paletten-Doktorfisch', en: 'Blue Tang', sci: 'Paracanthurus hepatus', wiki: 'Paracanthurus' },
+      { id: 'rf-9', cat: 'reef', de: 'Rotfeuerfisch', en: 'Red Lionfish', sci: 'Pterois volitans', wiki: 'Red_lionfish' },
+      { id: 'rf-10', cat: 'reef', de: 'Echter Steinfisch', en: 'Reef Stonefish', sci: 'Synanceia verrucosa', wiki: 'Synanceia_verrucosa' },
+      { id: 'rf-11', cat: 'reef', de: 'Riesenmuräne', en: 'Giant Moray', sci: 'Gymnothorax javanicus', wiki: 'Giant_moray' },
+      { id: 'rf-12', cat: 'reef', de: 'Geistermuräne', en: 'Ribbon Eel', sci: 'Rhinomuraena quaesita', wiki: 'Ribbon_eel' },
+      { id: 'rf-13', cat: 'reef', de: 'Büffelkopf-Papageifisch', en: 'Green Humphead Parrotfish', sci: 'Bolbometopon muricatum', wiki: 'Green_humphead_parrotfish' },
+      { id: 'rf-14', cat: 'reef', de: 'Gelbbrauner Kofferfisch', en: 'Yellow Boxfish', sci: 'Ostracion cubicus', wiki: 'Yellow_boxfish' },
+      { id: 'rf-15', cat: 'reef', de: 'Gepunkteter Igelfisch', en: 'Spot-fin Porcupinefish', sci: 'Diodon hystrix', wiki: 'Spot-fin_porcupinefish' },
+      { id: 'rf-16', cat: 'reef', de: 'Wimpelfisch', en: 'Schooling Bannerfish', sci: 'Heniochus diphreutes', wiki: 'Schooling_bannerfish' },
+      { id: 'rf-17', cat: 'reef', de: 'Masken-Falterfisch', en: 'Bluecheek Butterflyfish', sci: 'Chaetodon semilarvatus', wiki: 'Bluecheek_butterflyfish' },
+      { id: 'rf-18', cat: 'reef', de: 'Gemeiner Trompetenfisch', en: 'Trumpetfish', sci: 'Aulostomus maculatus', wiki: 'Atlantic_trumpetfish' },
 
-      // === WIRBELLOSE & KOPFFÜSSER (INVERTEBRATES) ===
-      { id: 'iv-1', cat: 'invert', de: 'Gewöhnlicher Krake', en: 'Common Octopus', sci: 'Octopus vulgaris', img: wpImg('Octopus vulgaris2.jpg') },
-      { id: 'iv-2', cat: 'invert', de: 'Großer Blauer Krake', en: 'Day Octopus', sci: 'Octopus cyanea', img: wpImg('Octopus cyanea hawaii.jpg') },
-      { id: 'iv-3', cat: 'invert', de: 'Blauring-Oktopus', en: 'Blue-ringed Octopus', sci: 'Hapalochlaena lunulata', img: wpImg('Hapalochlaena lunulata.jpg') },
-      { id: 'iv-4', cat: 'invert', de: 'Breitarm-Sepia', en: 'Broadclub Cuttlefish', sci: 'Sepia latimanus', img: wpImg('Sepia latimanus komodo.jpg') },
-      { id: 'iv-5', cat: 'invert', de: 'Prachtsepia', en: 'Flamboyant Cuttlefish', sci: 'Metasepia pfefferi', img: wpImg('Metasepia pfefferi lembeh.jpg') },
-      { id: 'iv-6', cat: 'invert', de: 'Großer Riffkalmar', en: 'Bigfin Reef Squid', sci: 'Sepioteuthis lessoniana', img: wpImg('Sepioteuthis lessoniana red sea.jpg') },
-      { id: 'iv-7', cat: 'invert', de: 'Pfauen-Fangschreckenkrebs', en: 'Peacock Mantis Shrimp', sci: 'Odontodactylus scyllarus', img: wpImg('Odontodactylus scyllarus komodo.jpg') },
-      { id: 'iv-8', cat: 'invert', de: 'Karibik-Languste', en: 'Caribbean Spiny Lobster', sci: 'Panulirus argus', img: wpImg('Panulirus argus florida.jpg') },
-      { id: 'iv-9', cat: 'invert', de: 'Harlekin-Garnele', en: 'Harlequin Shrimp', sci: 'Hymenocera picta', img: wpImg('Hymenocera picta hawaii.jpg') },
-      { id: 'iv-10', cat: 'invert', de: 'Kardinalsgarnele / Putzergarnele', en: 'Pacific Cleaner Shrimp', sci: 'Lysmata amboinensis', img: wpImg('Lysmata amboinensis bali.jpg') },
-      { id: 'iv-11', cat: 'invert', de: 'Bärenkrebs', en: 'Slipper Lobster', sci: 'Scyllarides latus', img: wpImg('Scyllarides latus azores.jpg') },
+      // === WIRBELLOSE ===
+      { id: 'iv-1', cat: 'invert', de: 'Gewöhnlicher Krake', en: 'Common Octopus', sci: 'Octopus vulgaris', wiki: 'Common_octopus' },
+      { id: 'iv-2', cat: 'invert', de: 'Großer Blauer Krake', en: 'Day Octopus', sci: 'Octopus cyanea', wiki: 'Big_blue_octopus' },
+      { id: 'iv-3', cat: 'invert', de: 'Blauring-Oktopus', en: 'Blue-ringed Octopus', sci: 'Hapalochlaena lunulata', wiki: 'Greater_blue-ringed_octopus' },
+      { id: 'iv-4', cat: 'invert', de: 'Breitarm-Sepia', en: 'Broadclub Cuttlefish', sci: 'Sepia latimanus', wiki: 'Broadclub_cuttlefish' },
+      { id: 'iv-5', cat: 'invert', de: 'Prachtsepia', en: 'Flamboyant Cuttlefish', sci: 'Metasepia pfefferi', wiki: 'Metasepia_pfefferi' },
+      { id: 'iv-6', cat: 'invert', de: 'Großer Riffkalmar', en: 'Bigfin Reef Squid', sci: 'Sepioteuthis lessoniana', wiki: 'Bigfin_reef_squid' },
+      { id: 'iv-7', cat: 'invert', de: 'Pfauen-Fangschreckenkrebs', en: 'Peacock Mantis Shrimp', sci: 'Odontodactylus scyllarus', wiki: 'Odontodactylus_scyllarus' },
+      { id: 'iv-8', cat: 'invert', de: 'Karibik-Languste', en: 'Caribbean Spiny Lobster', sci: 'Panulirus argus', wiki: 'Panulirus_argus' },
+      { id: 'iv-9', cat: 'invert', de: 'Harlekin-Garnele', en: 'Harlequin Shrimp', sci: 'Hymenocera picta', wiki: 'Hymenocera' },
+      { id: 'iv-10', cat: 'invert', de: 'Pazifische Putzergarnele', en: 'Pacific Cleaner Shrimp', sci: 'Lysmata amboinensis', wiki: 'Lysmata_amboinensis' },
+      { id: 'iv-11', cat: 'invert', de: 'Großer Bärenkrebs', en: 'Mediterranean Slipper Lobster', sci: 'Scyllarides latus', wiki: 'Scyllarides_latus' },
 
-      // === MAKRO & NACKTKIEMER (MACRO) ===
-      { id: 'mc-1', cat: 'macro', de: 'Spanische Tänzerin', en: 'Spanish Dancer', sci: 'Hexabranchus sanguineus', img: wpImg('Hexabranchus sanguineus mayotte.jpg') },
-      { id: 'mc-2', cat: 'macro', de: 'Prachtsternschnecke', en: 'Magnificent Chromodoris', sci: 'Chromodoris magnifica', img: wpImg('Chromodoris magnifica philippines.jpg') },
-      { id: 'mc-3', cat: 'macro', de: 'Lochs Prachtsternschnecke', en: 'Loch\'s Chromodoris', sci: 'Chromodoris lochi', img: wpImg('Chromodoris lochi komodo.jpg') },
-      { id: 'mc-4', cat: 'macro', de: 'Schafblatt-Schnecke', en: 'Leaf Sheep', sci: 'Costasiella kuroshimae', img: wpImg('Costasiella kuroshimae.jpg') },
-      { id: 'mc-5', cat: 'macro', de: 'Bargibant Zwerg-Seepferdchen', en: 'Pygmy Seahorse', sci: 'Hippocampus bargibanti', img: wpImg('Hippocampus bargibanti lembeh.jpg') },
-      { id: 'mc-6', cat: 'macro', de: 'Dorniges Seepferdchen', en: 'Thorny Seahorse', sci: 'Hippocampus histrix', img: wpImg('Hippocampus histrix red sea.jpg') },
-      { id: 'mc-7', cat: 'macro', de: 'Harlekin-Geisterpfeifenfisch', en: 'Harlequin Ghost Pipefish', sci: 'Solenostomus paradoxus', img: wpImg('Solenostomus paradoxus komodo.jpg') },
-      { id: 'mc-8', cat: 'macro', de: 'Fetzenfisch / Großer Seefetzen', en: 'Leafy Seadragon', sci: 'Phycodurus eques', img: wpImg('Leafy Seadragon underwater.jpg') },
-      { id: 'mc-9', cat: 'macro', de: 'Blaue Ozeanschnecke', en: 'Blue Sea Slug', sci: 'Glaucus atlanticus', img: wpImg('Glaucus atlanticus 1.jpg') },
-      { id: 'mc-10', cat: 'macro', de: 'Schaukel-Drachenkopf', en: 'Leaf Scorpionfish', sci: 'Taenianotus triacanthus', img: wpImg('Taenianotus triacanthus lembeh.jpg') }
+      // === MAKRO ===
+      { id: 'mc-1', cat: 'macro', de: 'Spanische Tänzerin', en: 'Spanish Dancer', sci: 'Hexabranchus sanguineus', wiki: 'Spanish_dancer' },
+      { id: 'mc-2', cat: 'macro', de: 'Prachtsternschnecke', en: 'Magnificent Chromodoris', sci: 'Chromodoris magnifica', wiki: 'Chromodoris_magnifica' },
+      { id: 'mc-3', cat: 'macro', de: 'Lochs Prachtsternschnecke', en: 'Loch\'s Chromodoris', sci: 'Chromodoris lochi', wiki: 'Chromodoris_lochi' },
+      { id: 'mc-4', cat: 'macro', de: 'Schafblatt-Schnecke', en: 'Leaf Sheep', sci: 'Costasiella kuroshimae', wiki: 'Costasiella_kuroshimae' },
+      { id: 'mc-5', cat: 'macro', de: 'Bargibant Zwerg-Seepferdchen', en: 'Pygmy Seahorse', sci: 'Hippocampus bargibanti', wiki: 'Pygmy_seahorse' },
+      { id: 'mc-6', cat: 'macro', de: 'Dorniges Seepferdchen', en: 'Thorny Seahorse', sci: 'Hippocampus histrix', wiki: 'Thorny_seahorse' },
+      { id: 'mc-7', cat: 'macro', de: 'Harlekin-Geisterpfeifenfisch', en: 'Harlequin Ghost Pipefish', sci: 'Solenostomus paradoxus', wiki: 'Harlequin_ghost_pipefish' },
+      { id: 'mc-8', cat: 'macro', de: 'Fetzenfisch / Großer Seefetzen', en: 'Leafy Seadragon', sci: 'Phycodurus eques', wiki: 'Leafy_seadragon' },
+      { id: 'mc-9', cat: 'macro', de: 'Blaue Ozeanschnecke', en: 'Blue Sea Slug', sci: 'Glaucus atlanticus', wiki: 'Glaucus_atlanticus' },
+      { id: 'mc-10', cat: 'macro', de: 'Schaukel-Drachenkopf', en: 'Leaf Scorpionfish', sci: 'Taenianotus triacanthus', wiki: 'Taenianotus_triacanthus' }
     ];
 
     let currentLang = localStorage.getItem('oceanlog_lang') || 'de';
@@ -383,6 +381,7 @@
     let sightings = JSON.parse(localStorage.getItem('oceanlog_sightings')) || [];
     let customSpecies = JSON.parse(localStorage.getItem('oceanlog_custom')) || [];
     let customPhotos = JSON.parse(localStorage.getItem('oceanlog_photos')) || {};
+    let cachedWikiImages = JSON.parse(localStorage.getItem('oceanlog_wiki_imgs')) || {};
 
     const categories = [
       { id: 'all', de: 'Alle', en: 'All' },
@@ -403,6 +402,7 @@
       updateStats();
       setupEventListeners();
       initLeafletMap();
+      fetchMissingWikiThumbnails();
     });
 
     function applyTheme(theme) {
@@ -439,6 +439,35 @@
       return [...initialSpecies, ...customSpecies];
     }
 
+    // Lädt automatisch jedes fehlende Wikipedia-Bild einmalig und speichert es dauerhaft
+    async function fetchMissingWikiThumbnails() {
+      const all = getAllSpecies();
+      let updated = false;
+
+      for (const s of all) {
+        if (!cachedWikiImages[s.id] && s.wiki) {
+          try {
+            const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(s.wiki)}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.thumbnail && data.thumbnail.source) {
+                cachedWikiImages[s.id] = data.thumbnail.source;
+                updated = true;
+                const imgEl = document.getElementById(`img-${s.id}`);
+                if (imgEl) imgEl.src = data.thumbnail.source;
+              }
+            }
+          } catch (e) {
+            // Ignorieren falls offline
+          }
+        }
+      }
+
+      if (updated) {
+        localStorage.setItem('oceanlog_wiki_imgs', JSON.stringify(cachedWikiImages));
+      }
+    }
+
     function renderSpeciesGrid() {
       const grid = document.getElementById('species-grid');
       const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
@@ -457,14 +486,14 @@
 
       grid.innerHTML = filtered.map(s => {
         const isSeen = sightings.some(x => x.speciesId === s.id);
-        const displayImg = customPhotos[s.id] || s.img;
+        const displayImg = customPhotos[s.id] || cachedWikiImages[s.id] || s.img || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80';
         const displayName = currentLang === 'de' ? s.de : s.en;
         const subName = currentLang === 'de' ? s.en : s.de;
 
         return `
           <div class="relative bg-white dark:bg-appCard rounded-2xl overflow-hidden border ${isSeen ? 'border-appTeal/60 ring-1 ring-appTeal/40' : 'border-slate-200 dark:border-slate-800'} shadow-sm flex flex-col justify-between transition-all duration-300">
             <div class="relative w-full h-36 bg-slate-900 cursor-pointer overflow-hidden" onclick="openSightingModal('${s.id}')">
-              <img src="${displayImg}" alt="${displayName}" loading="lazy" class="w-full h-full object-cover ${isSeen ? 'seen-img' : 'unseen-img'}">
+              <img id="img-${s.id}" src="${displayImg}" alt="${displayName}" loading="lazy" class="w-full h-full object-cover ${isSeen ? 'seen-img' : 'unseen-img'}">
               
               <button onclick="event.stopPropagation(); toggleQuickSeen('${s.id}')" class="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition shadow-md ${isSeen ? 'bg-appTeal text-white' : 'bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm'}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -488,7 +517,6 @@
         `;
       }).join('');
 
-      // Custom Species Tile
       grid.innerHTML += `
         <div onclick="promptAddCustomSpecies()" class="h-48 border-2 border-dashed border-slate-300 dark:border-slate-700/80 rounded-2xl flex flex-col items-center justify-center text-center p-3 cursor-pointer hover:border-appTeal transition bg-slate-50/50 dark:bg-appCard/30">
           <div class="w-10 h-10 rounded-full bg-appTeal/10 text-appTeal flex items-center justify-center mb-2">
@@ -732,7 +760,7 @@
       const name = prompt(currentLang === 'de' ? 'Welches Meerestier möchtest du hinzufügen?' : 'Which marine species would you like to add?');
       if (!name) return;
 
-      let photoUrl = wpImg('Whale shark Georgia aquarium.jpg');
+      let photoUrl = 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80';
       let sciName = 'Species sp.';
 
       try {
@@ -834,6 +862,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
+      // Backup Export
       document.getElementById('export-btn').addEventListener('click', () => {
         const payload = {
           sightings,
@@ -850,6 +879,7 @@
         URL.revokeObjectURL(url);
       });
 
+      // Backup Import
       document.getElementById('import-file').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
