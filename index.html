@@ -193,7 +193,7 @@
     </svg>
   </button>
 
-  <!-- Modal: Sighting Log mit sicherem Abstand und erreichbarem Schließen-Kreuz -->
+  <!-- Modal: Sighting Log mit Lösch-Funktion -->
   <div id="sighting-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-end sm:items-center justify-center pt-8 pb-0 sm:p-4">
     <div class="bg-white dark:bg-appCard w-full max-w-md rounded-t-3xl sm:rounded-2xl max-h-[88vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col relative overscroll-contain">
       
@@ -202,22 +202,30 @@
         <img id="modal-species-img" src="" alt="Tierbild" class="w-full h-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
         
-        <!-- Schließen-Kreuz mit vergrößertem Trefferbereich und sichtbarem Abstand oben -->
         <button type="button" id="close-modal-btn" aria-label="Schließen" class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-md shadow-lg border border-white/20 active:scale-95 transition">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        <!-- Titel & Artname -->
         <div class="absolute bottom-3 left-4 right-4">
           <h3 id="modal-species-title" class="text-lg font-bold text-white drop-shadow-md leading-tight"></h3>
           <p id="modal-species-sub" class="text-xs text-emerald-300 italic drop-shadow-md"></p>
         </div>
       </div>
 
-      <!-- Formularbereich -->
-      <form id="sighting-form" class="space-y-3 p-5 text-xs">
+      <!-- Bisherige Sichtungen dieser Art mit Lösch-Button -->
+      <div id="existing-sightings-container" class="px-5 pt-3 pb-1 hidden">
+        <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-appTextDark mb-2" id="label-past-sightings">Erfasste Sichtungen dieser Art:</h4>
+        <div id="existing-sightings-list" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar"></div>
+      </div>
+
+      <!-- Formular: Neue Sichtung eintragen -->
+      <form id="sighting-form" class="space-y-3 p-5 pt-2 text-xs">
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+          <span class="font-bold text-xs text-appTeal" id="label-new-sighting">+ Neue Sichtung hinzufügen</span>
+        </div>
+
         <input type="hidden" id="modal-species-id">
 
         <div>
@@ -259,7 +267,6 @@
           <textarea id="modal-notes" rows="2" placeholder="z. B. Putzerstation, ruhig geschwommen..." class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100"></textarea>
         </div>
 
-        <!-- Buttons unten: Speichern & Bequemes Abbrechen -->
         <div class="pt-2 flex gap-2">
           <button type="button" id="cancel-modal-btn" class="py-2.5 px-4 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-xl transition">
             Abbrechen
@@ -571,6 +578,7 @@
       updateMapMarkers();
     }
 
+    // Modal öffnen & bisherige Sichtungen mit Lösch-Button anzeigen
     function openSightingModal(speciesId) {
       const s = getAllSpecies().find(x => x.id === speciesId);
       if (!s) return;
@@ -590,9 +598,69 @@
       document.getElementById('modal-notes').value = '';
       document.getElementById('gps-status').innerText = '';
 
+      renderExistingSightingsInModal(speciesId);
+
       const modal = document.getElementById('sighting-modal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
+    }
+
+    function renderExistingSightingsInModal(speciesId) {
+      const listContainer = document.getElementById('existing-sightings-container');
+      const list = document.getElementById('existing-sightings-list');
+      const currentSightings = sightings.filter(x => x.speciesId === speciesId);
+
+      if (currentSightings.length === 0) {
+        listContainer.classList.add('hidden');
+        list.innerHTML = '';
+        return;
+      }
+
+      listContainer.classList.remove('hidden');
+      list.innerHTML = currentSightings.map(s => `
+        <div class="flex items-center justify-between p-2.5 bg-slate-100 dark:bg-appInput rounded-xl border border-slate-200 dark:border-slate-700/80">
+          <div class="pr-2 truncate">
+            <div class="font-bold text-slate-800 dark:text-slate-100 text-[11px] truncate">📍 ${s.location || 'Ohne Ort'}</div>
+            <div class="text-[10px] text-slate-500 dark:text-appTextDark flex gap-2">
+              <span>📅 ${s.date ? s.date.replace('T', ' ') : '-'}</span>
+              ${s.depth ? `<span>🌊 ${s.depth}m</span>` : ''}
+              <span>🔢 ${s.count || 1}x</span>
+            </div>
+            ${s.notes ? `<div class="text-[10px] text-slate-400 italic truncate mt-0.5">"${s.notes}"</div>` : ''}
+          </div>
+          <button type="button" onclick="deleteSightingById('${s.id}')" title="Sichtung löschen" class="p-2 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // Einzelnen Sichtungs-Eintrag löschen
+    function deleteSightingById(sightingId) {
+      if (!confirm(currentLang === 'de' ? 'Möchtest du diese Sichtung wirklich löschen?' : 'Delete this sighting entry?')) {
+        return;
+      }
+
+      const item = sightings.find(s => s.id === sightingId);
+      const speciesId = item ? item.speciesId : null;
+
+      sightings = sightings.filter(s => s.id !== sightingId);
+      saveData();
+      updateStats();
+      renderSpeciesGrid();
+      updateMapMarkers();
+
+      if (speciesId) {
+        renderExistingSightingsInModal(speciesId);
+        // Modal-Bild aktualisieren falls keine Sichtungen mehr übrig
+        const stillSeen = sightings.some(x => x.speciesId === speciesId);
+        const imgEl = document.getElementById('modal-species-img');
+        if (imgEl) {
+          imgEl.className = `w-full h-full object-cover ${stillSeen ? 'seen-img' : 'unseen-img'}`;
+        }
+      }
     }
 
     function closeSightingModal() {
@@ -706,6 +774,7 @@
       updateMapMarkers();
     }
 
+    // Karten-Pins mit integriertem Lösch-Button
     function updateMapMarkers() {
       if (!markersLayer) return;
       markersLayer.clearLayers();
@@ -731,6 +800,14 @@
               <div>📍 ${s.location}</div>
               ${s.depth ? `<div>🌊 ${s.depth}m Tiefe</div>` : ''}
               ${s.notes ? `<div class="mt-1 text-slate-300 italic">"${s.notes}"</div>` : ''}
+              <div class="mt-2.5 pt-2 border-t border-slate-700/80 flex justify-end">
+                <button onclick="deleteSightingById('${s.id}')" class="text-[10px] text-rose-400 hover:text-rose-300 flex items-center gap-1 py-1 px-2 rounded bg-rose-500/10 hover:bg-rose-500/20 transition">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  <span>Sichtung löschen</span>
+                </button>
+              </div>
             </div>
           `);
           markersLayer.addLayer(marker);
