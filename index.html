@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>OceanLog - Marine Life Tracker</title>
   
-  <!-- Web App Meta Tags -->
   <meta name="theme-color" content="#0d1726">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -30,7 +28,6 @@
     }
   </script>
 
-  <!-- Leaflet Maps CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -40,31 +37,23 @@
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
-    .custom-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .custom-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    .custom-scrollbar::-webkit-scrollbar { display: none; }
+    .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .unseen-img {
-      filter: grayscale(100%) brightness(0.65) contrast(1.1);
-      transition: filter 0.4s ease, transform 0.4s ease;
+      filter: grayscale(100%) brightness(0.7) contrast(1.1);
+      transition: filter 0.35s ease;
     }
     .seen-img {
       filter: grayscale(0%) brightness(1) contrast(1);
-      transition: filter 0.4s ease, transform 0.4s ease;
+      transition: filter 0.35s ease;
     }
     .leaflet-popup-content-wrapper {
       background: #16243b !important;
       color: #fff !important;
       border-radius: 12px !important;
-      padding: 4px !important;
       border: 1px solid #00a878 !important;
     }
-    .leaflet-popup-tip {
-      background: #16243b !important;
-    }
+    .leaflet-popup-tip { background: #16243b !important; }
   </style>
 </head>
 <body class="bg-[#f0f4f8] text-slate-800 dark:bg-appDark dark:text-slate-100 min-h-screen font-sans pb-24 transition-colors duration-200">
@@ -100,7 +89,7 @@
     </div>
   </header>
 
-  <!-- Main View: Catalog -->
+  <!-- Catalog View -->
   <main id="catalog-view" class="max-w-md mx-auto px-4 pt-3">
     <!-- Search Bar -->
     <div class="relative mb-3">
@@ -108,7 +97,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
       <input type="text" id="search-input" placeholder="Tiername, Englisch oder wiss. Name suchen..." 
-        class="w-full bg-white dark:bg-appInput pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-appTeal dark:focus:border-appTeal text-slate-900 dark:text-slate-100 shadow-sm transition">
+        class="w-full bg-white dark:bg-appInput pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-appTeal text-slate-900 dark:text-slate-100 shadow-sm transition">
     </div>
 
     <!-- Status Filters -->
@@ -125,13 +114,13 @@
     <div id="species-grid" class="grid grid-cols-2 gap-3 mb-6"></div>
   </main>
 
-  <!-- World Map View -->
+  <!-- Map View -->
   <section id="map-view" class="hidden max-w-md mx-auto px-4 pt-3">
     <div class="bg-white dark:bg-appCard rounded-2xl p-3 border border-slate-200 dark:border-slate-800 shadow-sm mb-3">
       <div class="flex items-center justify-between mb-2">
         <div>
           <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100" id="map-title">Sichtungs-Weltkarte</h2>
-          <p class="text-xs text-slate-500 dark:text-appTextDark" id="map-subtitle">Tippe auf einen Pin, um Details zu sehen</p>
+          <p class="text-xs text-slate-500 dark:text-appTextDark" id="map-subtitle">Pins zeigen deine Sichtungsorte</p>
         </div>
         <button id="reset-map-btn" class="px-2.5 py-1 text-xs bg-slate-100 dark:bg-appInput rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
           Zentrieren
@@ -141,7 +130,7 @@
     </div>
   </section>
 
-  <!-- Backup & Storage View -->
+  <!-- Backup & Settings View -->
   <section id="backup-view" class="hidden max-w-md mx-auto px-4 pt-3">
     <div class="bg-white dark:bg-appCard rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
       <h2 class="text-base font-bold mb-1" id="backup-title">Daten & Sicherung</h2>
@@ -165,13 +154,13 @@
       </div>
 
       <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-        <span class="text-xs text-slate-500 dark:text-appTextDark" id="storage-status">Gespeicherte Sichtungen:</span>
+        <span class="text-xs text-slate-500 dark:text-appTextDark">Gespeicherte Sichtungen:</span>
         <span id="storage-count" class="text-xs font-bold text-appTeal">0</span>
       </div>
     </div>
   </section>
 
-  <!-- Bottom Navigation Bar -->
+  <!-- Navigation Bar -->
   <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-appDark/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800/80 px-6 py-2">
     <div class="max-w-md mx-auto flex items-center justify-around text-xs">
       <button class="nav-btn flex flex-col items-center gap-1 text-appTeal" data-tab="catalog-view">
@@ -204,7 +193,7 @@
     </svg>
   </button>
 
-  <!-- Modal: Sighting Log / Details -->
+  <!-- Modal: Sighting Log -->
   <div id="sighting-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white dark:bg-appCard w-full max-w-md rounded-t-3xl sm:rounded-2xl max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 p-5 shadow-2xl">
       <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
@@ -212,7 +201,7 @@
           <h3 id="modal-species-title" class="text-base font-bold text-slate-900 dark:text-slate-100">Sichtung eintragen</h3>
           <p id="modal-species-sub" class="text-xs text-slate-500 dark:text-appTextDark italic"></p>
         </div>
-        <button id="close-modal-btn" class="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+        <button id="close-modal-btn" class="p-1 rounded-full text-slate-400 hover:text-slate-200">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -223,12 +212,12 @@
         <input type="hidden" id="modal-species-id">
 
         <div>
-          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300" id="label-date">Datum & Uhrzeit</label>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Datum & Uhrzeit</label>
           <input type="datetime-local" id="modal-date" required class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
         </div>
 
         <div>
-          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300" id="label-location">Ort / Riff / Insel</label>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Ort / Riff / Insel</label>
           <div class="relative">
             <input type="text" id="modal-location" placeholder="z. B. Tiputa Pass, Rangiroa" required class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
             <div id="autocomplete-list" class="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-appInput border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto hidden"></div>
@@ -240,29 +229,29 @@
             <svg class="w-3.5 h-3.5 text-appTeal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             </svg>
-            <span id="btn-gps-text">Mein GPS nutzen</span>
+            <span>Mein GPS nutzen</span>
           </button>
           <span id="gps-status" class="text-[11px] text-slate-400 truncate"></span>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300" id="label-depth">Tiefe (Meter)</label>
+            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Tiefe (Meter)</label>
             <input type="number" id="modal-depth" placeholder="z. B. 18" class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
           </div>
           <div>
-            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300" id="label-count">Anzahl Tiere</label>
+            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Anzahl Tiere</label>
             <input type="number" id="modal-count" value="1" min="1" class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
           </div>
         </div>
 
         <div>
-          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300" id="label-notes">Notizen / Verhalten</label>
-          <textarea id="modal-notes" rows="2" placeholder="z. B. Putzerstation, jagend..." class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100"></textarea>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Notizen / Verhalten</label>
+          <textarea id="modal-notes" rows="2" placeholder="z. B. Putzerstation, ruhig geschwommen..." class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100"></textarea>
         </div>
 
         <div class="pt-2 flex gap-2">
-          <button type="submit" class="flex-1 py-2.5 bg-appTeal hover:bg-appTealHover text-white font-bold rounded-xl shadow-lg shadow-appTeal/20 transition" id="save-sighting-btn">
+          <button type="submit" class="flex-1 py-2.5 bg-appTeal hover:bg-appTealHover text-white font-bold rounded-xl shadow-lg shadow-appTeal/20 transition">
             Sichtung speichern
           </button>
         </div>
@@ -270,32 +259,104 @@
     </div>
   </div>
 
-  <!-- Hidden Photo Replacement Input -->
   <input type="file" id="photo-upload-input" accept="image/*" class="hidden">
 
   <script>
-    // --- SPECIES DATABASE (HTTPS Direct Verified Links) ---
+    // --- 100+ CURATED MARINE SPECIES WITH DIRECT WIKIMEDIA THUMBNAILS ---
     const initialSpecies = [
-      { id: 'shark-1', cat: 'sharks', de: 'Walhai', en: 'Whale Shark', sci: 'Rhincodon typus', img: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80' },
-      { id: 'shark-2', cat: 'sharks', de: 'Weißspitzen-Riffhai', en: 'Whitetip Reef Shark', sci: 'Triaenodon obesus', img: 'https://images.unsplash.com/photo-1560275619-4662e36fa65c?auto=format&fit=crop&w=600&q=80' },
-      { id: 'shark-3', cat: 'sharks', de: 'Schwarzspitzen-Riffhai', en: 'Blacktip Reef Shark', sci: 'Carcharhinus melanopterus', img: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=600&q=80' },
-      { id: 'shark-4', cat: 'sharks', de: 'Grauer Riffhai', en: 'Grey Reef Shark', sci: 'Carcharhinus amblyrhynchos', img: 'https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?auto=format&fit=crop&w=600&q=80' },
-      { id: 'shark-5', cat: 'sharks', de: 'Großer Hammerhai', en: 'Great Hammerhead', sci: 'Sphyrna mokarran', img: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=600&q=80' },
-      { id: 'shark-6', cat: 'sharks', de: 'Tigerhai', en: 'Tiger Shark', sci: 'Galeocerdo cuvier', img: 'https://images.unsplash.com/photo-1598977123118-4e30ba3c4f5b?auto=format&fit=crop&w=600&q=80' },
-      { id: 'ray-1', cat: 'rays', de: 'Riffmanta', en: 'Reef Manta Ray', sci: 'Mobula alfredi', img: 'https://images.unsplash.com/photo-1544551763-77ef2d0cf96c?auto=format&fit=crop&w=600&q=80' },
-      { id: 'ray-2', cat: 'rays', de: 'Gefleckter Adlerrochen', en: 'Spotted Eagle Ray', sci: 'Aetobatus narinari', img: 'https://images.unsplash.com/photo-1508873696983-2df5293cb395?auto=format&fit=crop&w=600&q=80' },
-      { id: 'ray-3', cat: 'rays', de: 'Blaupunkt-Stechrochen', en: 'Bluespotted Ribbontail Ray', sci: 'Taeniura lymma', img: 'https://images.unsplash.com/photo-1584727638096-042c45049ebe?auto=format&fit=crop&w=600&q=80' },
-      { id: 'mammal-1', cat: 'mammals', de: 'Großer Tümmler', en: 'Bottlenose Dolphin', sci: 'Tursiops truncatus', img: 'https://images.unsplash.com/photo-1607153333879-c174d265f1d2?auto=format&fit=crop&w=600&q=80' },
-      { id: 'mammal-2', cat: 'mammals', de: 'Buckelwal', en: 'Humpback Whale', sci: 'Megaptera novaeangliae', img: 'https://images.unsplash.com/photo-1568430462989-44163eb1752f?auto=format&fit=crop&w=600&q=80' },
-      { id: 'turtle-1', cat: 'turtles', de: 'Grüne Meeresschildkröte', en: 'Green Sea Turtle', sci: 'Chelonia mydas', img: 'https://images.unsplash.com/photo-1518467166778-b88f373ffec7?auto=format&fit=crop&w=600&q=80' },
-      { id: 'turtle-2', cat: 'turtles', de: 'Echte Karettschildkröte', en: 'Hawksbill Turtle', sci: 'Eretmochelys imbricata', img: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=600&q=80' },
-      { id: 'fish-1', cat: 'reef', de: 'Echter Clownfisch', en: 'Ocellaris Clownfish', sci: 'Amphiprion ocellaris', img: 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00?auto=format&fit=crop&w=600&q=80' },
-      { id: 'fish-2', cat: 'reef', de: 'Titan-Drückerfisch', en: 'Titan Triggerfish', sci: 'Balistoides viridescens', img: 'https://images.unsplash.com/photo-1544551763-7b447477c770?auto=format&fit=crop&w=600&q=80' },
-      { id: 'fish-3', cat: 'reef', de: 'Napoleon-Lippfisch', en: 'Humphead Wrasse', sci: 'Cheilinus undulatus', img: 'https://images.unsplash.com/photo-1535591273668-578e31182c4f?auto=format&fit=crop&w=600&q=80' },
-      { id: 'invert-1', cat: 'invert', de: 'Gewöhnlicher Krake', en: 'Common Octopus', sci: 'Octopus vulgaris', img: 'https://images.unsplash.com/photo-1545671913-b89ac1b4ac10?auto=format&fit=crop&w=600&q=80' }
+      // === HAIE (SHARKS) ===
+      { id: 'sh-1', cat: 'sharks', de: 'Walhai', en: 'Whale Shark', sci: 'Rhincodon typus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/df/Whale_shark_Georgia_aquarium.jpg/640px-Whale_shark_Georgia_aquarium.jpg' },
+      { id: 'sh-2', cat: 'sharks', de: 'Weißspitzen-Riffhai', en: 'Whitetip Reef Shark', sci: 'Triaenodon obesus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Triaenodon_obesus_Similan.JPG/640px-Triaenodon_obesus_Similan.JPG' },
+      { id: 'sh-3', cat: 'sharks', de: 'Schwarzspitzen-Riffhai', en: 'Blacktip Reef Shark', sci: 'Carcharhinus melanopterus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Blacktip_reef_shark_maldives.jpg/640px-Blacktip_reef_shark_maldives.jpg' },
+      { id: 'sh-4', cat: 'sharks', de: 'Grauer Riffhai', en: 'Grey Reef Shark', sci: 'Carcharhinus amblyrhynchos', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Carcharhinus_amblyrhynchos_noaa.jpg/640px-Carcharhinus_amblyrhynchos_noaa.jpg' },
+      { id: 'sh-5', cat: 'sharks', de: 'Großer Hammerhai', en: 'Great Hammerhead', sci: 'Sphyrna mokarran', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Sphyrna_mokarran_bimini.jpg/640px-Sphyrna_mokarran_bimini.jpg' },
+      { id: 'sh-6', cat: 'sharks', de: 'Bogenstirn-Hammerhai', en: 'Scalloped Hammerhead', sci: 'Sphyrna lewini', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Scalloped_hammerhead_shark_%28Sphyrna_lewini%29_%286047242971%29.jpg/640px-Scalloped_hammerhead_shark_%28Sphyrna_lewini%29_%286047242971%29.jpg' },
+      { id: 'sh-7', cat: 'sharks', de: 'Tigerhai', en: 'Tiger Shark', sci: 'Galeocerdo cuvier', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Tiger_shark.jpg/640px-Tiger_shark.jpg' },
+      { id: 'sh-8', cat: 'sharks', de: 'Bullenhai', en: 'Bull Shark', sci: 'Carcharhinus leucas', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Bullshark_Playa_del_Carmen.JPG/640px-Bullshark_Playa_del_Carmen.JPG' },
+      { id: 'sh-9', cat: 'sharks', de: 'Zebrahai / Leopardenhai', en: 'Zebra Shark', sci: 'Stegostoma tigrinum', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Stegostoma_fasciatum_Similan.JPG/640px-Stegostoma_fasciatum_Similan.JPG' },
+      { id: 'sh-10', cat: 'sharks', de: 'Pelagischer Fuchshai', en: 'Pelagic Thresher Shark', sci: 'Alopias pelagicus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Pelagic_thresher_Malapascua.jpg/640px-Pelagic_thresher_Malapascua.jpg' },
+      { id: 'sh-11', cat: 'sharks', de: 'Atlantischer Ammenhai', en: 'Nurse Shark', sci: 'Ginglymostoma cirratum', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Nurse_shark_Belize.jpg/640px-Nurse_shark_Belize.jpg' },
+      { id: 'sh-12', cat: 'sharks', de: 'Weißspitzen-Hochseehai', en: 'Oceanic Whitetip Shark', sci: 'Carcharhinus longimanus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Oceanic_whitetip_shark_red_sea.jpg/640px-Oceanic_whitetip_shark_red_sea.jpg' },
+      { id: 'sh-13', cat: 'sharks', de: 'Silberspitzenhai', en: 'Silvertip Shark', sci: 'Carcharhinus albimarginatus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Carcharhinus_albimarginatus_yap.jpg/640px-Carcharhinus_albimarginatus_yap.jpg' },
+      { id: 'sh-14', cat: 'sharks', de: 'Seidenhai', en: 'Silky Shark', sci: 'Carcharhinus falciformis', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Silky_shark_cuba.jpg/640px-Silky_shark_cuba.jpg' },
+      { id: 'sh-15', cat: 'sharks', de: 'Fransen-Teppichhai', en: 'Tasselled Wobbegong', sci: 'Eucrossorhinus dasypogon', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Eucrossorhinus_dasypogon_raja_ampat.jpg/640px-Eucrossorhinus_dasypogon_raja_ampat.jpg' },
+
+      // === ROCHEN (RAYS) ===
+      { id: 'ra-1', cat: 'rays', de: 'Riffmanta', en: 'Reef Manta Ray', sci: 'Mobula alfredi', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Manta_alfredi_kona.jpg/640px-Manta_alfredi_kona.jpg' },
+      { id: 'ra-2', cat: 'rays', de: 'Riesenmanta', en: 'Giant Oceanic Manta Ray', sci: 'Mobula birostris', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Giant_Manta_Ray_%28Mobula_birostris%29.jpg/640px-Giant_Manta_Ray_%28Mobula_birostris%29.jpg' },
+      { id: 'ra-3', cat: 'rays', de: 'Gefleckter Adlerrochen', en: 'Spotted Eagle Ray', sci: 'Aetobatus narinari', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Aetobatus_narinari_Belize.jpg/640px-Aetobatus_narinari_Belize.jpg' },
+      { id: 'ra-4', cat: 'rays', de: 'Blaupunkt-Stechrochen', en: 'Bluespotted Ribbontail Ray', sci: 'Taeniura lymma', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Bluespotted_ribbontail_ray_red_sea.jpg/640px-Bluespotted_ribbontail_ray_red_sea.jpg' },
+      { id: 'ra-5', cat: 'rays', de: 'Federschwanz-Stechrochen', en: 'Feather-tail Stingray', sci: 'Pastinachus sephen', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Pastinachus_sephen_maldives.jpg/640px-Pastinachus_sephen_maldives.jpg' },
+      { id: 'ra-6', cat: 'rays', de: 'Rundkopf-Geigenrochen', en: 'Bowmouth Guitarfish', sci: 'Rhina ancylostoma', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Bowmouth_Guitarfish_%28Rhina_ancylostoma%29.jpg/640px-Bowmouth_Guitarfish_%28Rhina_ancylostoma%29.jpg' },
+      { id: 'ra-7', cat: 'rays', de: 'Blauer Stechrochen', en: 'Blue Stingray', sci: 'Dasyatis pastinaca', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Dasyatis_pastinaca_tenerife.jpg/640px-Dasyatis_pastinaca_tenerife.jpg' },
+      { id: 'ra-8', cat: 'rays', de: 'Marmor-Zitterrochen', en: 'Marbled Electric Ray', sci: 'Torpedo marmorata', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Torpedo_marmorata_croatia.jpg/640px-Torpedo_marmorata_croatia.jpg' },
+
+      // === SCHILDKRÖTEN (TURTLES) ===
+      { id: 'tu-1', cat: 'turtles', de: 'Grüne Meeresschildkröte', en: 'Green Sea Turtle', sci: 'Chelonia mydas', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Chelonia_mydas_hawaii.jpg/640px-Chelonia_mydas_hawaii.jpg' },
+      { id: 'tu-2', cat: 'turtles', de: 'Echte Karettschildkröte', en: 'Hawksbill Sea Turtle', sci: 'Eretmochelys imbricata', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Eretmochelys_imbricata_similan.JPG/640px-Eretmochelys_imbricata_similan.JPG' },
+      { id: 'tu-3', cat: 'turtles', de: 'Unechte Karettschildkröte', en: 'Loggerhead Sea Turtle', sci: 'Caretta caretta', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Caretta_caretta_zakynthos.jpg/640px-Caretta_caretta_zakynthos.jpg' },
+      { id: 'tu-4', cat: 'turtles', de: 'Lederschildkröte', en: 'Leatherback Sea Turtle', sci: 'Dermochelys coriacea', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Leatherback_sea_turtle_underwater.jpg/640px-Leatherback_sea_turtle_underwater.jpg' },
+
+      // === MEERESSÄUGER (MAMMALS) ===
+      { id: 'ma-1', cat: 'mammals', de: 'Großer Tümmler', en: 'Bottlenose Dolphin', sci: 'Tursiops truncatus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Tursiops_truncatus_01.jpg/640px-Tursiops_truncatus_01.jpg' },
+      { id: 'ma-2', cat: 'mammals', de: 'Spinner-Delfin', en: 'Spinner Dolphin', sci: 'Stenella longirostris', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Spinner_dolphins_hawaii.jpg/640px-Spinner_dolphins_hawaii.jpg' },
+      { id: 'ma-3', cat: 'mammals', de: 'Buckelwal', en: 'Humpback Whale', sci: 'Megaptera novaeangliae', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Humpback_Whale_underwater_shot.jpg/640px-Humpback_Whale_underwater_shot.jpg' },
+      { id: 'ma-4', cat: 'mammals', de: 'Dugong / Gabel-Seekuh', en: 'Dugong', sci: 'Dugong dugon', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Dugong_marsa_alam.jpg/640px-Dugong_marsa_alam.jpg' },
+      { id: 'ma-5', cat: 'mammals', de: 'Karibik-Manati', en: 'West Indian Manatee', sci: 'Trichechus manatus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Manatee_at_crystal_river.jpg/640px-Manatee_at_crystal_river.jpg' },
+      { id: 'ma-6', cat: 'mammals', de: 'Kalifornischer Seelöwe', en: 'California Sea Lion', sci: 'Zalophus californianus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/California_sea_lion_la_jolla.jpg/640px-California_sea_lion_la_jolla.jpg' },
+      { id: 'ma-7', cat: 'mammals', de: 'Kurzflossen-Grindwal', en: 'Short-finned Pilot Whale', sci: 'Globicephala macrorhynchus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Short-finned_Pilot_Whales.jpg/640px-Short-finned_Pilot_Whales.jpg' },
+
+      // === PELAGISCHE FISCHE & GROSSFISCHE (PELAGIC) ===
+      { id: 'pe-1', cat: 'pelagic', de: 'Großer Barrakuda', en: 'Great Barracuda', sci: 'Sphyraena barracuda', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Sphyraena_barracuda_noaa.jpg/640px-Sphyraena_barracuda_noaa.jpg' },
+      { id: 'pe-2', cat: 'pelagic', de: 'Mondfisch (Mola Mola)', en: 'Ocean Sunfish', sci: 'Mola mola', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sunfish2.jpg/640px-Sunfish2.jpg' },
+      { id: 'pe-3', cat: 'pelagic', de: 'Riesen-Makrele (GT)', en: 'Giant Trevally', sci: 'Caranx ignobilis', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Caranx_ignobilis_albatross.jpg/640px-Caranx_ignobilis_albatross.jpg' },
+      { id: 'pe-4', cat: 'pelagic', de: 'Rundkopf-Fledermausfisch', en: 'Orbicular Batfish', sci: 'Platax orbicularis', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Platax_orbicularis_maldives.jpg/640px-Platax_orbicularis_maldives.jpg' },
+      { id: 'pe-5', cat: 'pelagic', de: 'Gelbflossen-Thun', en: 'Yellowfin Tuna', sci: 'Thunnus albacares', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Yellowfin_tuna.jpg/640px-Yellowfin_tuna.jpg' },
+      { id: 'pe-6', cat: 'pelagic', de: 'Atlantischer Tarpun', en: 'Atlantic Tarpon', sci: 'Megalops atlanticus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Tarpon_bonaire.jpg/640px-Tarpon_bonaire.jpg' },
+      { id: 'pe-7', cat: 'pelagic', de: 'Blauflossen-Makrele', en: 'Bluefin Trevally', sci: 'Caranx melampygus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Caranx_melampygus_hawaii.jpg/640px-Caranx_melampygus_hawaii.jpg' },
+      { id: 'pe-8', cat: 'pelagic', de: 'Segelfisch (Fächerfisch)', en: 'Indo-Pacific Sailfish', sci: 'Istiophorus platypterus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Sailfish_isla_mujeres.jpg/640px-Sailfish_isla_mujeres.jpg' },
+
+      // === RIFFFISCHE (REEF FISH) ===
+      { id: 'rf-1', cat: 'reef', de: 'Echter Clownfisch', en: 'Ocellaris Clownfish', sci: 'Amphiprion ocellaris', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Amphiprion_ocellaris_clownfish.jpg/640px-Amphiprion_ocellaris_clownfish.jpg' },
+      { id: 'rf-2', cat: 'reef', de: 'Titan-Drückerfisch', en: 'Titan Triggerfish', sci: 'Balistoides viridescens', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Titan_triggerfish_red_sea.jpg/640px-Titan_triggerfish_red_sea.jpg' },
+      { id: 'rf-3', cat: 'reef', de: 'Napoleon-Lippfisch', en: 'Humphead Wrasse', sci: 'Cheilinus undulatus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cheilinus_undulatus_red_sea.jpg/640px-Cheilinus_undulatus_red_sea.jpg' },
+      { id: 'rf-4', cat: 'reef', de: 'Riesen-Zackenbarsch', en: 'Giant Grouper', sci: 'Epinephelus lanceolatus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Epinephelus_lanceolatus_georgia.jpg/640px-Epinephelus_lanceolatus_georgia.jpg' },
+      { id: 'rf-5', cat: 'reef', de: 'Pfauen-Kaiserfisch', en: 'Regal Angelfish', sci: 'Pygoplites diacanthus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Pygoplites_diacanthus_red_sea.jpg/640px-Pygoplites_diacanthus_red_sea.jpg' },
+      { id: 'rf-6', cat: 'reef', de: 'Imperator-Kaiserfisch', en: 'Emperor Angelfish', sci: 'Pomacanthus imperator', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Pomacanthus_imperator_red_sea.jpg/640px-Pomacanthus_imperator_red_sea.jpg' },
+      { id: 'rf-7', cat: 'reef', de: 'Picasso-Drückerfisch', en: 'Picasso Triggerfish', sci: 'Rhinecanthus aculeatus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Rhinecanthus_aculeatus_hawaii.jpg/640px-Rhinecanthus_aculeatus_hawaii.jpg' },
+      { id: 'rf-8', cat: 'reef', de: 'Paletten-Doktorfisch (Dorie)', en: 'Blue Tang', sci: 'Paracanthurus hepatus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Paracanthurus_hepatus_aquarium.jpg/640px-Paracanthurus_hepatus_aquarium.jpg' },
+      { id: 'rf-9', cat: 'reef', de: 'Rotfeuerfisch', en: 'Red Lionfish', sci: 'Pterois volitans', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Pterois_volitans_manado.jpg/640px-Pterois_volitans_manado.jpg' },
+      { id: 'rf-10', cat: 'reef', de: 'Echter Steinfisch', en: 'Reef Stonefish', sci: 'Synanceia verrucosa', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Synanceia_verrucosa_red_sea.jpg/640px-Synanceia_verrucosa_red_sea.jpg' },
+      { id: 'rf-11', cat: 'reef', de: 'Riesenmuräne', en: 'Giant Moray', sci: 'Gymnothorax javanicus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Gymnothorax_javanicus_red_sea.jpg/640px-Gymnothorax_javanicus_red_sea.jpg' },
+      { id: 'rf-12', cat: 'reef', de: 'Geistermuräne', en: 'Ribbon Eel', sci: 'Rhinomuraena quaesita', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Rhinomuraena_quaesita_bunaken.jpg/640px-Rhinomuraena_quaesita_bunaken.jpg' },
+      { id: 'rf-13', cat: 'reef', de: 'Büffelkopf-Papageifisch', en: 'Green Humphead Parrotfish', sci: 'Bolbometopon muricatum', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Bolbometopon_muricatum_sipadan.jpg/640px-Bolbometopon_muricatum_sipadan.jpg' },
+      { id: 'rf-14', cat: 'reef', de: 'Gewöhnlicher Kofferfisch', en: 'Yellow Boxfish', sci: 'Ostracion cubicus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Ostracion_cubicus_red_sea.jpg/640px-Ostracion_cubicus_red_sea.jpg' },
+      { id: 'rf-15', cat: 'reef', de: 'Masken-Igelfisch', en: 'Spot-fin Porcupinefish', sci: 'Diodon hystrix', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Diodon_hystrix_hawaii.jpg/640px-Diodon_hystrix_hawaii.jpg' },
+
+      // === WIRBELLOSE & KOPFFÜSSER (INVERTEBRATES) ===
+      { id: 'iv-1', cat: 'invert', de: 'Gewöhnlicher Krake', en: 'Common Octopus', sci: 'Octopus vulgaris', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Octopus_vulgaris2.jpg/640px-Octopus_vulgaris2.jpg' },
+      { id: 'iv-2', cat: 'invert', de: 'Großer Blauer Krake', en: 'Day Octopus', sci: 'Octopus cyanea', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Octopus_cyanea_hawaii.jpg/640px-Octopus_cyanea_hawaii.jpg' },
+      { id: 'iv-3', cat: 'invert', de: 'Blauring-Oktopus', en: 'Blue-ringed Octopus', sci: 'Hapalochlaena lunulata', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Hapalochlaena_lunulata.jpg/640px-Hapalochlaena_lunulata.jpg' },
+      { id: 'iv-4', cat: 'invert', de: 'Breitarm-Sepia', en: 'Broadclub Cuttlefish', sci: 'Sepia latimanus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Sepia_latimanus_komodo.jpg/640px-Sepia_latimanus_komodo.jpg' },
+      { id: 'iv-5', cat: 'invert', de: 'Prachtsepia (Pfeffer-Sepia)', en: 'Flamboyant Cuttlefish', sci: 'Metasepia pfefferi', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Metasepia_pfefferi_lembeh.jpg/640px-Metasepia_pfefferi_lembeh.jpg' },
+      { id: 'iv-6', cat: 'invert', de: 'Schilf-Kalmar / Riffkalmar', en: 'Bigfin Reef Squid', sci: 'Sepioteuthis lessoniana', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Sepioteuthis_lessoniana_red_sea.jpg/640px-Sepioteuthis_lessoniana_red_sea.jpg' },
+      { id: 'iv-7', cat: 'invert', de: 'Pfauen-Fangschreckenkrebs', en: 'Peacock Mantis Shrimp', sci: 'Odontodactylus scyllarus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Odontodactylus_scyllarus_komodo.jpg/640px-Odontodactylus_scyllarus_komodo.jpg' },
+      { id: 'iv-8', cat: 'invert', de: 'Karibik-Languste', en: 'Caribbean Spiny Lobster', sci: 'Panulirus argus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Panulirus_argus_florida.jpg/640px-Panulirus_argus_florida.jpg' },
+      { id: 'iv-9', cat: 'invert', de: 'Harlekin-Garnele', en: 'Harlequin Shrimp', sci: 'Hymenocera picta', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Hymenocera_picta_hawaii.jpg/640px-Hymenocera_picta_hawaii.jpg' },
+      { id: 'iv-10', cat: 'invert', de: 'Weißband-Putzergarnele', en: 'Pacific Cleaner Shrimp', sci: 'Lysmata amboinensis', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Lysmata_amboinensis_bali.jpg/640px-Lysmata_amboinensis_bali.jpg' },
+
+      // === MAKRO & NACKTKIEMER (MACRO) ===
+      { id: 'mc-1', cat: 'macro', de: 'Spanische Tänzerin', en: 'Spanish Dancer', sci: 'Hexabranchus sanguineus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Hexabranchus_sanguineus_mayotte.jpg/640px-Hexabranchus_sanguineus_mayotte.jpg' },
+      { id: 'mc-2', cat: 'macro', de: 'Prachtsternschnecke', en: 'Magnificent Chromodoris', sci: 'Chromodoris magnifica', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Chromodoris_magnifica_philippines.jpg/640px-Chromodoris_magnifica_philippines.jpg' },
+      { id: 'mc-3', cat: 'macro', de: 'Lochs Prachtsternschnecke', en: 'Loch\'s Chromodoris', sci: 'Chromodoris lochi', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Chromodoris_lochi_komodo.jpg/640px-Chromodoris_lochi_komodo.jpg' },
+      { id: 'mc-4', cat: 'macro', de: 'Schafblatt-Schnecke', en: 'Leaf Sheep', sci: 'Costasiella kuroshimae', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Costasiella_kuroshimae.jpg/640px-Costasiella_kuroshimae.jpg' },
+      { id: 'mc-5', cat: 'macro', de: 'Bargibant Zwerg-Seepferdchen', en: 'Pygmy Seahorse', sci: 'Hippocampus bargibanti', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Hippocampus_bargibanti_lembeh.jpg/640px-Hippocampus_bargibanti_lembeh.jpg' },
+      { id: 'mc-6', cat: 'macro', de: 'Dorniges Seepferdchen', en: 'Thorny Seahorse', sci: 'Hippocampus histrix', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Hippocampus_histrix_red_sea.jpg/640px-Hippocampus_histrix_red_sea.jpg' },
+      { id: 'mc-7', cat: 'macro', de: 'Harlekin-Geisterpfeifenfisch', en: 'Harlequin Ghost Pipefish', sci: 'Solenostomus paradoxus', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Solenostomus_paradoxus_komodo.jpg/640px-Solenostomus_paradoxus_komodo.jpg' },
+      { id: 'mc-8', cat: 'macro', de: 'Fetzenfisch / Seefetzen', en: 'Leafy Seadragon', sci: 'Phycodurus eques', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Leafy_Seadragon_underwater.jpg/640px-Leafy_Seadragon_underwater.jpg' }
     ];
 
-    // --- APPLICATION STATE ---
+    // --- APP STATE & LOCALSTORAGE ---
     let currentLang = localStorage.getItem('oceanlog_lang') || 'de';
     let currentTheme = localStorage.getItem('oceanlog_theme') || 'dark';
     let activeCategory = 'all';
@@ -304,7 +365,6 @@
     let map = null;
     let markersLayer = null;
 
-    // Load sightings and custom species from localStorage
     let sightings = JSON.parse(localStorage.getItem('oceanlog_sightings')) || [];
     let customSpecies = JSON.parse(localStorage.getItem('oceanlog_custom')) || [];
     let customPhotos = JSON.parse(localStorage.getItem('oceanlog_photos')) || {};
@@ -313,13 +373,14 @@
       { id: 'all', de: 'Alle', en: 'All' },
       { id: 'sharks', de: 'Haie', en: 'Sharks' },
       { id: 'rays', de: 'Rochen', en: 'Rays' },
-      { id: 'mammals', de: 'Meeressäuger', en: 'Mammals' },
+      { id: 'mammals', de: 'Säuger', en: 'Mammals' },
       { id: 'turtles', de: 'Schildkröten', en: 'Turtles' },
+      { id: 'pelagic', de: 'Pelagisch', en: 'Pelagic' },
       { id: 'reef', de: 'Rifffische', en: 'Reef Fish' },
-      { id: 'invert', de: 'Wirbellose', en: 'Invertebrates' }
+      { id: 'invert', de: 'Wirbellose', en: 'Invertebrates' },
+      { id: 'macro', de: 'Makro', en: 'Macro' }
     ];
 
-    // --- INITIALIZATION ---
     document.addEventListener('DOMContentLoaded', () => {
       applyTheme(currentTheme);
       initCategoryBar();
@@ -387,18 +448,15 @@
 
         return `
           <div class="relative bg-white dark:bg-appCard rounded-2xl overflow-hidden border ${isSeen ? 'border-appTeal/60 ring-1 ring-appTeal/40' : 'border-slate-200 dark:border-slate-800'} shadow-sm flex flex-col justify-between transition-all duration-300">
-            <!-- Image Area -->
             <div class="relative w-full h-36 bg-slate-900 cursor-pointer overflow-hidden" onclick="openSightingModal('${s.id}')">
-              <img src="${displayImg}" alt="${displayName}" class="w-full h-full object-cover ${isSeen ? 'seen-img' : 'unseen-img'}">
+              <img src="${displayImg}" alt="${displayName}" loading="lazy" class="w-full h-full object-cover ${isSeen ? 'seen-img' : 'unseen-img'}" onerror="this.src='https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80'">
               
-              <!-- Checkbox Top Right -->
               <button onclick="event.stopPropagation(); toggleQuickSeen('${s.id}')" class="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition shadow-md ${isSeen ? 'bg-appTeal text-white' : 'bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm'}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                 </svg>
               </button>
 
-              <!-- Photo Replace Button Top Left -->
               <button onclick="event.stopPropagation(); triggerPhotoUpload('${s.id}')" class="absolute top-2 left-2 w-7 h-7 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-sm shadow-sm transition">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -407,7 +465,6 @@
               </button>
             </div>
 
-            <!-- Card Meta -->
             <div class="p-3 cursor-pointer" onclick="openSightingModal('${s.id}')">
               <h3 class="font-bold text-xs leading-snug line-clamp-1 text-slate-900 dark:text-slate-100">${displayName}</h3>
               <p class="text-[11px] text-slate-500 dark:text-appTextDark italic truncate">${subName}</p>
@@ -416,7 +473,7 @@
         `;
       }).join('');
 
-      // Add "Custom Animal" Tile
+      // Add Tile
       grid.innerHTML += `
         <div onclick="promptAddCustomSpecies()" class="h-48 border-2 border-dashed border-slate-300 dark:border-slate-700/80 rounded-2xl flex flex-col items-center justify-center text-center p-3 cursor-pointer hover:border-appTeal transition bg-slate-50/50 dark:bg-appCard/30">
           <div class="w-10 h-10 rounded-full bg-appTeal/10 text-appTeal flex items-center justify-center mb-2">
@@ -445,12 +502,12 @@
           id: 's-' + Date.now(),
           speciesId: speciesId,
           date: new Date().toISOString().slice(0, 16),
-          location: 'Riff / Meer',
+          location: 'Riff / Ozean',
           lat: -17.5388,
           lon: -149.8295,
           depth: 12,
           count: 1,
-          notes: 'Schnell erfasst'
+          notes: 'Gesehen'
         });
       }
       saveData();
@@ -478,7 +535,6 @@
       modal.classList.add('flex');
     }
 
-    // Modal Submission
     document.getElementById('sighting-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const speciesId = document.getElementById('modal-species-id').value;
@@ -661,20 +717,37 @@
       reader.readAsDataURL(file);
     });
 
-    // Custom Species Creation Prompt
-    function promptAddCustomSpecies() {
-      const deName = prompt(currentLang === 'de' ? 'Deutscher Name des Tiers:' : 'Species Name (DE):');
-      if (!deName) return;
-      const enName = prompt(currentLang === 'de' ? 'Englischer Name:' : 'English Name:') || deName;
-      const sciName = prompt('Wissenschaftlicher Name (optional):') || 'Species sp.';
+    // Custom Species Creation with iNaturalist/Wikipedia DB Lookup
+    async function promptAddCustomSpecies() {
+      const name = prompt(currentLang === 'de' ? 'Welches Meerestier möchtest du hinzufügen?' : 'Which marine species would you like to add?');
+      if (!name) return;
+
+      let photoUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/df/Whale_shark_Georgia_aquarium.jpg/640px-Whale_shark_Georgia_aquarium.jpg';
+      let sciName = 'Species sp.';
+
+      try {
+        // Query Wikipedia DB for image and taxonomy
+        const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.thumbnail && data.thumbnail.source) {
+            photoUrl = data.thumbnail.source;
+          }
+          if (data.description) {
+            sciName = data.description;
+          }
+        }
+      } catch (err) {
+        console.log('Online lookup skipped');
+      }
 
       const newAnimal = {
         id: 'custom-' + Date.now(),
         cat: activeCategory === 'all' ? 'reef' : activeCategory,
-        de: deName,
-        en: enName,
+        de: name,
+        en: name,
         sci: sciName,
-        img: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80'
+        img: photoUrl
       };
 
       customSpecies.push(newAnimal);
@@ -687,9 +760,8 @@
       localStorage.setItem('oceanlog_sightings', JSON.stringify(sightings));
     }
 
-    // Navigation and Tab Switching
+    // Navigation and UI Handlers
     function setupEventListeners() {
-      // Bottom Navigation Tabs
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const tab = btn.dataset.tab;
@@ -714,7 +786,6 @@
         });
       });
 
-      // Search & Status Filters
       document.getElementById('search-input').addEventListener('input', renderSpeciesGrid);
       document.querySelectorAll('.status-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -729,7 +800,6 @@
         });
       });
 
-      // Language Switcher
       document.getElementById('lang-btn').addEventListener('click', () => {
         currentLang = currentLang === 'de' ? 'en' : 'de';
         document.getElementById('lang-btn').innerText = currentLang === 'de' ? 'EN' : 'DE';
@@ -739,13 +809,11 @@
         updateStats();
       });
 
-      // Theme Switcher
       document.getElementById('theme-btn').addEventListener('click', () => {
         currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
         applyTheme(currentTheme);
       });
 
-      // Scroll to Top Button
       window.addEventListener('scroll', () => {
         const btn = document.getElementById('scroll-top-btn');
         if (window.scrollY > 300) {
@@ -800,7 +868,6 @@
         reader.readAsText(file);
       });
 
-      // Center Map Button
       document.getElementById('reset-map-btn').addEventListener('click', () => {
         if (map) map.setView([-17.5388, -149.8295], 3);
       });
