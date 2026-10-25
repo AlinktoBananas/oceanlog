@@ -54,6 +54,10 @@
       border: 1px solid #00a878 !important;
     }
     .leaflet-popup-tip { background: #16243b !important; }
+    .custom-pin-marker {
+      background: transparent;
+      border: none;
+    }
   </style>
 </head>
 <body class="bg-[#f0f4f8] text-slate-800 dark:bg-appDark dark:text-slate-100 min-h-screen font-sans pb-24 transition-colors duration-200">
@@ -91,7 +95,6 @@
 
   <!-- Catalog View -->
   <main id="catalog-view" class="max-w-md mx-auto px-4 pt-3">
-    <!-- Search Bar -->
     <div class="relative mb-3">
       <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400 dark:text-appTextDark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -100,17 +103,13 @@
         class="w-full bg-white dark:bg-appInput pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-appTeal text-slate-900 dark:text-slate-100 shadow-sm transition">
     </div>
 
-    <!-- Status Filters -->
     <div class="flex items-center gap-1.5 mb-2.5 overflow-x-auto custom-scrollbar text-xs">
       <button class="status-btn px-3 py-1.5 rounded-full font-semibold bg-appTeal text-white shadow-sm" data-status="all">Alle</button>
       <button class="status-btn px-3 py-1.5 rounded-full font-semibold bg-slate-200 dark:bg-appCard text-slate-700 dark:text-slate-300" data-status="seen">Gesehen ✨</button>
       <button class="status-btn px-3 py-1.5 rounded-full font-semibold bg-slate-200 dark:bg-appCard text-slate-700 dark:text-slate-300" data-status="unseen">Noch offen</button>
     </div>
 
-    <!-- Category Ribbon -->
     <div id="category-bar" class="flex gap-2 overflow-x-auto custom-scrollbar pb-2 mb-3 text-xs font-medium"></div>
-
-    <!-- Species Grid -->
     <div id="species-grid" class="grid grid-cols-2 gap-3 mb-6"></div>
   </main>
 
@@ -120,10 +119,10 @@
       <div class="flex items-center justify-between mb-2">
         <div>
           <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100" id="map-title">Sichtungs-Weltkarte</h2>
-          <p class="text-xs text-slate-500 dark:text-appTextDark" id="map-subtitle">Pins zeigen deine Sichtungsorte</p>
+          <p class="text-xs text-slate-500 dark:text-appTextDark" id="map-subtitle">Stecknadeln zeigen deine Fundorte</p>
         </div>
-        <button id="reset-map-btn" class="px-2.5 py-1 text-xs bg-slate-100 dark:bg-appInput rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
-          Zentrieren
+        <button id="reset-map-btn" class="px-2.5 py-1 text-xs bg-slate-100 dark:bg-appInput rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium">
+          Alle zeigen
         </button>
       </div>
       <div id="leaflet-map" class="w-full h-[65vh] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700"></div>
@@ -193,7 +192,7 @@
     </svg>
   </button>
 
-  <!-- Modal: Sighting Log mit Lösch-Funktion -->
+  <!-- Modal: Sighting Log -->
   <div id="sighting-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-end sm:items-center justify-center pt-8 pb-0 sm:p-4">
     <div class="bg-white dark:bg-appCard w-full max-w-md rounded-t-3xl sm:rounded-2xl max-h-[88vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col relative overscroll-contain">
       
@@ -216,14 +215,14 @@
 
       <!-- Bisherige Sichtungen dieser Art mit Lösch-Button -->
       <div id="existing-sightings-container" class="px-5 pt-3 pb-1 hidden">
-        <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-appTextDark mb-2" id="label-past-sightings">Erfasste Sichtungen dieser Art:</h4>
+        <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-appTextDark mb-2">Erfasste Sichtungen dieser Art:</h4>
         <div id="existing-sightings-list" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar"></div>
       </div>
 
       <!-- Formular: Neue Sichtung eintragen -->
       <form id="sighting-form" class="space-y-3 p-5 pt-2 text-xs">
         <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
-          <span class="font-bold text-xs text-appTeal" id="label-new-sighting">+ Neue Sichtung hinzufügen</span>
+          <span class="font-bold text-xs text-appTeal">+ Neue Sichtung hinzufügen</span>
         </div>
 
         <input type="hidden" id="modal-species-id">
@@ -236,7 +235,7 @@
         <div>
           <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Ort / Riff / Insel</label>
           <div class="relative">
-            <input type="text" id="modal-location" placeholder="z. B. Tiputa Pass, Rangiroa" required class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+            <input type="text" id="modal-location" placeholder="z. B. Komodo, Bali, Moorea..." required class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
             <div id="autocomplete-list" class="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-appInput border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50 max-h-40 overflow-y-auto hidden"></div>
           </div>
         </div>
@@ -295,7 +294,7 @@
       { id: 'sh-9', cat: 'sharks', de: 'Zebrahai / Leopardenhai', en: 'Zebra Shark', sci: 'Stegostoma tigrinum', wiki: 'Zebra_shark' },
       { id: 'sh-10', cat: 'sharks', de: 'Pelagischer Fuchshai', en: 'Pelagic Thresher', sci: 'Alopias pelagicus', wiki: 'Pelagic_thresher' },
       { id: 'sh-11', cat: 'sharks', de: 'Atlantischer Ammenhai', en: 'Nurse Shark', sci: 'Ginglymostoma cirratum', wiki: 'Nurse_shark' },
-      { id: 'sh-12', cat: 'sharks', de: 'Weißspitzen-Hochseehai', en: 'Oceanic Whitetip Shark', sci: 'Carcharhinus longimanus', wiki: 'Oceanic_whitetip_shark' },
+      { id: 'sh-12', cat: 'sharks', de: 'Weißspitzen-Hochseehai', en: 'Oceanic标志Whitetip Shark', sci: 'Carcharhinus longimanus', wiki: 'Oceanic_whitetip_shark' },
       { id: 'sh-13', cat: 'sharks', de: 'Silberspitzenhai', en: 'Silvertip Shark', sci: 'Carcharhinus albimarginatus', wiki: 'Silvertip_shark' },
       { id: 'sh-14', cat: 'sharks', de: 'Seidenhai', en: 'Silky Shark', sci: 'Carcharhinus falciformis', wiki: 'Silky_shark' },
       { id: 'sh-15', cat: 'sharks', de: 'Fransen-Teppichhai', en: 'Tasselled Wobbegong', sci: 'Eucrossorhinus dasypogon', wiki: 'Tasselled_wobbegong' },
@@ -578,7 +577,6 @@
       updateMapMarkers();
     }
 
-    // Modal öffnen & bisherige Sichtungen mit Lösch-Button anzeigen
     function openSightingModal(speciesId) {
       const s = getAllSpecies().find(x => x.id === speciesId);
       if (!s) return;
@@ -597,6 +595,11 @@
       document.getElementById('modal-count').value = '1';
       document.getElementById('modal-notes').value = '';
       document.getElementById('gps-status').innerText = '';
+
+      // Formular-Geodaten sauber zurücksetzen
+      const form = document.getElementById('sighting-form');
+      delete form.dataset.lat;
+      delete form.dataset.lon;
 
       renderExistingSightingsInModal(speciesId);
 
@@ -637,7 +640,6 @@
       `).join('');
     }
 
-    // Einzelnen Sichtungs-Eintrag löschen
     function deleteSightingById(sightingId) {
       if (!confirm(currentLang === 'de' ? 'Möchtest du diese Sichtung wirklich löschen?' : 'Delete this sighting entry?')) {
         return;
@@ -654,7 +656,6 @@
 
       if (speciesId) {
         renderExistingSightingsInModal(speciesId);
-        // Modal-Bild aktualisieren falls keine Sichtungen mehr übrig
         const stillSeen = sightings.some(x => x.speciesId === speciesId);
         const imgEl = document.getElementById('modal-species-img');
         if (imgEl) {
@@ -669,6 +670,7 @@
       modal.classList.remove('flex');
     }
 
+    // Sichtungsformular mit verlässlicher Geodaten-Zuweisung
     document.getElementById('sighting-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const speciesId = document.getElementById('modal-species-id').value;
@@ -677,16 +679,24 @@
       const depth = document.getElementById('modal-depth').value;
       const count = document.getElementById('modal-count').value;
       const notes = document.getElementById('modal-notes').value;
-      const lat = parseFloat(document.getElementById('sighting-form').dataset.lat) || -17.5388;
-      const lon = parseFloat(document.getElementById('sighting-form').dataset.lon) || -149.8295;
+
+      const form = document.getElementById('sighting-form');
+      let lat = form.dataset.lat ? parseFloat(form.dataset.lat) : null;
+      let lon = form.dataset.lon ? parseFloat(form.dataset.lon) : null;
+
+      // Falls keine Geodaten zugewiesen wurden, Standard-Koordinate setzen
+      if (lat === null || lon === null || isNaN(lat) || isNaN(lon)) {
+        lat = -17.5388;
+        lon = -149.8295;
+      }
 
       sightings.push({
         id: 's-' + Date.now(),
         speciesId,
         date,
         location,
-        lat,
-        lon,
+        lat: lat,
+        lon: lon,
         depth: depth ? parseInt(depth) : null,
         count: parseInt(count) || 1,
         notes
@@ -714,7 +724,7 @@
         return;
       }
       searchTimeout = setTimeout(() => {
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=4`)
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5`)
           .then(res => res.json())
           .then(data => {
             if (!data.length) {
@@ -724,7 +734,7 @@
             autoList.innerHTML = data.map(item => `
               <div class="px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer truncate border-b border-slate-100 dark:border-slate-800 text-[11px]" 
                 data-name="${item.display_name}" data-lat="${item.lat}" data-lon="${item.lon}">
-                ${item.display_name}
+                📍 <strong>${item.display_name.split(',')[0]}</strong> <span class="text-slate-400">(${item.display_name})</span>
               </div>
             `).join('');
             autoList.classList.remove('hidden');
@@ -732,15 +742,16 @@
             autoList.querySelectorAll('div').forEach(el => {
               el.addEventListener('click', () => {
                 locInput.value = el.dataset.name.split(',')[0];
-                document.getElementById('sighting-form').dataset.lat = el.dataset.lat;
-                document.getElementById('sighting-form').dataset.lon = el.dataset.lon;
-                document.getElementById('gps-status').innerText = `✓ Geodaten verknüpft`;
+                const form = document.getElementById('sighting-form');
+                form.dataset.lat = el.dataset.lat;
+                form.dataset.lon = el.dataset.lon;
+                document.getElementById('gps-status').innerText = `✓ Ort verknüpft (${parseFloat(el.dataset.lat).toFixed(2)}, ${parseFloat(el.dataset.lon).toFixed(2)})`;
                 autoList.classList.add('hidden');
               });
             });
           })
           .catch(() => autoList.classList.add('hidden'));
-      }, 400);
+      }, 350);
     });
 
     document.getElementById('get-gps-btn').addEventListener('click', () => {
@@ -752,9 +763,10 @@
       }
       navigator.geolocation.getCurrentPosition(
         pos => {
-          document.getElementById('sighting-form').dataset.lat = pos.coords.latitude;
-          document.getElementById('sighting-form').dataset.lon = pos.coords.longitude;
-          status.innerText = `✓ ${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`;
+          const form = document.getElementById('sighting-form');
+          form.dataset.lat = pos.coords.latitude;
+          form.dataset.lon = pos.coords.longitude;
+          status.innerText = `✓ GPS: ${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`;
         },
         () => {
           status.innerText = 'Standort verweigert';
@@ -763,8 +775,32 @@
       );
     });
 
+    // Erzeuge eine Stecknadel mit rundem Smaragd-Kopf als SVG-Icon
+    function createTealPinIcon() {
+      const pinSvg = `
+        <svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.5));">
+          <!-- Nadelspitze -->
+          <path d="M15 42L11.5 24C11.5 24 15 26 18.5 24L15 42Z" fill="#a0aec0" />
+          <path d="M15 42L15 25" stroke="#718096" stroke-width="1.5" stroke-linecap="round" />
+          
+          <!-- Stecknadelkopf (Smaragdgrün/Teal) -->
+          <circle cx="15" cy="14" r="12" fill="#00a878" stroke="#ffffff" stroke-width="2.5" />
+          <!-- Glanzpunkt auf dem Kopf -->
+          <circle cx="12" cy="11" r="3" fill="#ffffff" opacity="0.6" />
+        </svg>
+      `;
+
+      return L.divIcon({
+        className: 'custom-pin-marker',
+        html: pinSvg,
+        iconSize: [30, 42],
+        iconAnchor: [15, 42], // Spitze der Nadel sitzt exakt auf der Koordinate
+        popupAnchor: [0, -40] // Popup öffnet sich oberhalb des Kopfes
+      });
+    }
+
     function initLeafletMap() {
-      map = L.map('leaflet-map').setView([-17.5388, -149.8295], 3);
+      map = L.map('leaflet-map').setView([0, 120], 3);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
         attribution: '© OpenStreetMap'
@@ -774,45 +810,55 @@
       updateMapMarkers();
     }
 
-    // Karten-Pins mit integriertem Lösch-Button
+    // Stecknadeln auf der Weltkarte & intelligentes automatisches Zentrieren
     function updateMapMarkers() {
-      if (!markersLayer) return;
+      if (!markersLayer || !map) return;
       markersLayer.clearLayers();
 
       const all = getAllSpecies();
-      sightings.forEach(s => {
-        if (s.lat && s.lon) {
-          const species = all.find(x => x.id === s.speciesId);
-          const name = species ? (currentLang === 'de' ? species.de : species.en) : 'Unbekannte Art';
-          const marker = L.circleMarker([s.lat, s.lon], {
-            radius: 8,
-            fillColor: '#00a878',
-            color: '#ffffff',
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 0.9
-          });
+      const bounds = [];
+      const pinIcon = createTealPinIcon();
 
-          marker.bindPopup(`
-            <div class="text-xs p-1">
-              <strong class="text-appTeal text-sm block mb-1">${name}</strong>
-              <div>📅 ${s.date ? s.date.replace('T', ' ') : '-'}</div>
-              <div>📍 ${s.location}</div>
-              ${s.depth ? `<div>🌊 ${s.depth}m Tiefe</div>` : ''}
-              ${s.notes ? `<div class="mt-1 text-slate-300 italic">"${s.notes}"</div>` : ''}
-              <div class="mt-2.5 pt-2 border-t border-slate-700/80 flex justify-end">
-                <button onclick="deleteSightingById('${s.id}')" class="text-[10px] text-rose-400 hover:text-rose-300 flex items-center gap-1 py-1 px-2 rounded bg-rose-500/10 hover:bg-rose-500/20 transition">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  <span>Sichtung löschen</span>
-                </button>
+      sightings.forEach(s => {
+        if (s.lat !== null && s.lat !== undefined && s.lon !== null && s.lon !== undefined) {
+          const lat = parseFloat(s.lat);
+          const lon = parseFloat(s.lon);
+
+          if (!isNaN(lat) && !isNaN(lon)) {
+            const species = all.find(x => x.id === s.speciesId);
+            const name = species ? (currentLang === 'de' ? species.de : species.en) : 'Unbekannte Art';
+            
+            const marker = L.marker([lat, lon], { icon: pinIcon });
+
+            marker.bindPopup(`
+              <div class="text-xs p-1">
+                <strong class="text-appTeal text-sm block mb-1">${name}</strong>
+                <div>📅 ${s.date ? s.date.replace('T', ' ') : '-'}</div>
+                <div>📍 ${s.location || 'Unbekannt'}</div>
+                ${s.depth ? `<div>🌊 ${s.depth}m Tiefe</div>` : ''}
+                ${s.notes ? `<div class="mt-1 text-slate-300 italic">"${s.notes}"</div>` : ''}
+                <div class="mt-2.5 pt-2 border-t border-slate-700/80 flex justify-end">
+                  <button onclick="deleteSightingById('${s.id}')" class="text-[10px] text-rose-400 hover:text-rose-300 flex items-center gap-1 py-1 px-2 rounded bg-rose-500/10 hover:bg-rose-500/20 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span>Sichtung löschen</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          `);
-          markersLayer.addLayer(marker);
+            `);
+            markersLayer.addLayer(marker);
+            bounds.push([lat, lon]);
+          }
         }
       });
+
+      // Wenn Markierungen existieren, zoome so, dass sowohl Indonesien als auch Polynesien sichtbar sind
+      if (bounds.length > 0) {
+        try {
+          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+        } catch (e) {}
+      }
     }
 
     function triggerPhotoUpload(speciesId) {
@@ -912,7 +958,7 @@
             setTimeout(() => {
               map.invalidateSize();
               updateMapMarkers();
-            }, 200);
+            }, 250);
           }
         });
       });
@@ -999,8 +1045,9 @@
         reader.readAsText(file);
       });
 
+      // "Alle zeigen"-Button: Zoomt so heraus, dass alle Pins weltweit Platz haben
       document.getElementById('reset-map-btn').addEventListener('click', () => {
-        if (map) map.setView([-17.5388, -149.8295], 3);
+        updateMapMarkers();
       });
     }
   </script>
