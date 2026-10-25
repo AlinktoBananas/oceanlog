@@ -66,9 +66,10 @@
   <header class="sticky top-0 z-40 bg-white/95 dark:bg-appDark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 px-4 py-3">
     <div class="max-w-md mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2.5">
+        <!-- Exakt zentriertes Wellen-Icon -->
         <div class="w-10 h-10 rounded-xl bg-appTeal flex items-center justify-center text-white shadow-lg shadow-appTeal/20">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 8c2.5-2 5.5-2 8 0s5.5 2 8 0M3 13c2.5-2 5.5-2 8 0s5.5 2 8 0M3 18c2.5-2 5.5-2 8 0s5.5 2 8 0" />
+          <svg class="w-5 h-5 block" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M3 6.5c3-2 6-2 9 0s6 2 9 0M3 12c3-2 6-2 9 0s6 2 9 0M3 17.5c3-2 6-2 9 0s6 2 9 0" />
           </svg>
         </div>
         <div>
@@ -196,7 +197,6 @@
   <div id="sighting-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-end sm:items-center justify-center pt-8 pb-0 sm:p-4">
     <div class="bg-white dark:bg-appCard w-full max-w-md rounded-t-3xl sm:rounded-2xl max-h-[88vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col relative overscroll-contain">
       
-      <!-- Tier-Bannerbild im Modal -->
       <div class="relative w-full h-44 bg-slate-950 flex-shrink-0 overflow-hidden">
         <img id="modal-species-img" src="" alt="Tierbild" class="w-full h-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
@@ -213,13 +213,11 @@
         </div>
       </div>
 
-      <!-- Bisherige Sichtungen dieser Art mit Lösch-Button -->
       <div id="existing-sightings-container" class="px-5 pt-3 pb-1 hidden">
         <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-appTextDark mb-2">Erfasste Sichtungen dieser Art:</h4>
         <div id="existing-sightings-list" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar"></div>
       </div>
 
-      <!-- Formular: Neue Sichtung eintragen -->
       <form id="sighting-form" class="space-y-3 p-5 pt-2 text-xs">
         <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
           <span class="font-bold text-xs text-appTeal">+ Neue Sichtung hinzufügen</span>
@@ -278,6 +276,83 @@
     </div>
   </div>
 
+  <!-- Modal: Tiernamen manuell bearbeiten -->
+  <div id="edit-species-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-appCard w-full max-w-sm rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-3">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Tiernamen bearbeiten</h3>
+        <button type="button" id="close-edit-species-btn" class="text-slate-400 hover:text-slate-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <form id="edit-species-form" class="space-y-3 text-xs">
+        <input type="hidden" id="edit-species-id">
+        <div>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Deutscher Name</label>
+          <input type="text" id="edit-species-de" required class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Englischer Name</label>
+          <input type="text" id="edit-species-en" required class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Wissenschaftlicher Name (Latein)</label>
+          <input type="text" id="edit-species-sci" class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+        </div>
+        <div class="pt-2 flex gap-2">
+          <button type="button" id="cancel-edit-species-btn" class="py-2.5 px-4 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-xl transition">
+            Abbrechen
+          </button>
+          <button type="submit" class="flex-1 py-2.5 bg-appTeal hover:bg-appTealHover text-white font-bold rounded-xl shadow-lg shadow-appTeal/20 transition">
+            Speichern
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Neues Tier hinzufügen mit Live-Vorschlägen -->
+  <div id="add-species-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-appCard w-full max-w-sm rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-3">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Neues Tier hinzufügen</h3>
+        <button type="button" id="close-add-species-btn" class="text-slate-400 hover:text-slate-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <form id="add-species-form" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Tiername eingeben (mit Live-Vorschlägen)</label>
+          <div class="relative">
+            <input type="text" id="add-species-input" placeholder="z. B. Mandarinfisch, Kugelfisch..." required autocomplete="off" class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+            <div id="species-suggestions-list" class="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-appInput border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50 max-h-48 overflow-y-auto hidden"></div>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Englischer Name</label>
+          <input type="text" id="add-species-en" placeholder="Englische Bezeichnung" class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Wissenschaftlicher Name (optional)</label>
+          <input type="text" id="add-species-sci" placeholder="z. B. Synchiropus splendidus" class="w-full bg-slate-100 dark:bg-appInput px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100">
+        </div>
+        <input type="hidden" id="add-species-img">
+        <div class="pt-2 flex gap-2">
+          <button type="button" id="cancel-add-species-btn" class="py-2.5 px-4 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-xl transition">
+            Abbrechen
+          </button>
+          <button type="submit" class="flex-1 py-2.5 bg-appTeal hover:bg-appTealHover text-white font-bold rounded-xl shadow-lg shadow-appTeal/20 transition">
+            Hinzufügen
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <input type="file" id="photo-upload-input" accept="image/*" class="hidden">
 
   <script>
@@ -294,7 +369,7 @@
       { id: 'sh-9', cat: 'sharks', de: 'Zebrahai / Leopardenhai', en: 'Zebra Shark', sci: 'Stegostoma tigrinum', wiki: 'Zebra_shark' },
       { id: 'sh-10', cat: 'sharks', de: 'Pelagischer Fuchshai', en: 'Pelagic Thresher', sci: 'Alopias pelagicus', wiki: 'Pelagic_thresher' },
       { id: 'sh-11', cat: 'sharks', de: 'Atlantischer Ammenhai', en: 'Nurse Shark', sci: 'Ginglymostoma cirratum', wiki: 'Nurse_shark' },
-      { id: 'sh-12', cat: 'sharks', de: 'Weißspitzen-Hochseehai', en: 'Oceanic标志Whitetip Shark', sci: 'Carcharhinus longimanus', wiki: 'Oceanic_whitetip_shark' },
+      { id: 'sh-12', cat: 'sharks', de: 'Weißspitzen-Hochseehai', en: 'Oceanic Whitetip Shark', sci: 'Carcharhinus longimanus', wiki: 'Oceanic_whitetip_shark' },
       { id: 'sh-13', cat: 'sharks', de: 'Silberspitzenhai', en: 'Silvertip Shark', sci: 'Carcharhinus albimarginatus', wiki: 'Silvertip_shark' },
       { id: 'sh-14', cat: 'sharks', de: 'Seidenhai', en: 'Silky Shark', sci: 'Carcharhinus falciformis', wiki: 'Silky_shark' },
       { id: 'sh-15', cat: 'sharks', de: 'Fransen-Teppichhai', en: 'Tasselled Wobbegong', sci: 'Eucrossorhinus dasypogon', wiki: 'Tasselled_wobbegong' },
@@ -398,6 +473,7 @@
     let sightings = JSON.parse(localStorage.getItem('oceanlog_sightings')) || [];
     let customSpecies = JSON.parse(localStorage.getItem('oceanlog_custom')) || [];
     let customPhotos = JSON.parse(localStorage.getItem('oceanlog_photos')) || {};
+    let customNames = JSON.parse(localStorage.getItem('oceanlog_names')) || {};
     let cachedWikiImages = JSON.parse(localStorage.getItem('oceanlog_wiki_imgs')) || {};
 
     const categories = [
@@ -453,7 +529,12 @@
     }
 
     function getAllSpecies() {
-      return [...initialSpecies, ...customSpecies];
+      return [...initialSpecies, ...customSpecies].map(s => {
+        if (customNames[s.id]) {
+          return { ...s, ...customNames[s.id] };
+        }
+        return s;
+      });
     }
 
     function getSpeciesImage(s) {
@@ -519,12 +600,19 @@
                 </svg>
               </button>
 
-              <button onclick="event.stopPropagation(); triggerPhotoUpload('${s.id}')" class="absolute top-2 left-2 w-7 h-7 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-sm shadow-sm transition">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </button>
+              <div class="absolute top-2 left-2 flex gap-1.5">
+                <button onclick="event.stopPropagation(); triggerPhotoUpload('${s.id}')" title="Foto ändern" class="w-7 h-7 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-sm shadow-sm transition">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </button>
+                <button onclick="event.stopPropagation(); openEditSpeciesModal('${s.id}')" title="Namen bearbeiten" class="w-7 h-7 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-sm shadow-sm transition">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div class="p-3 cursor-pointer" onclick="openSightingModal('${s.id}')">
@@ -535,14 +623,14 @@
         `;
       }).join('');
 
+      // Nur noch das farbige Plus-Symbol ohne Text
       grid.innerHTML += `
-        <div onclick="promptAddCustomSpecies()" class="h-48 border-2 border-dashed border-slate-300 dark:border-slate-700/80 rounded-2xl flex flex-col items-center justify-center text-center p-3 cursor-pointer hover:border-appTeal transition bg-slate-50/50 dark:bg-appCard/30">
-          <div class="w-10 h-10 rounded-full bg-appTeal/10 text-appTeal flex items-center justify-center mb-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div onclick="openAddSpeciesModal()" class="h-48 border-2 border-dashed border-slate-300 dark:border-slate-700/80 rounded-2xl flex items-center justify-center cursor-pointer hover:border-appTeal transition bg-slate-50/50 dark:bg-appCard/30 active:scale-95">
+          <div class="w-12 h-12 rounded-full bg-appTeal text-white flex items-center justify-center shadow-lg shadow-appTeal/30 hover:bg-appTealHover transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>
           </div>
-          <span class="text-xs font-bold text-slate-700 dark:text-slate-300">${currentLang === 'de' ? '+ Tier hinzufügen' : '+ Add Species'}</span>
         </div>
       `;
     }
@@ -596,7 +684,6 @@
       document.getElementById('modal-notes').value = '';
       document.getElementById('gps-status').innerText = '';
 
-      // Formular-Geodaten sauber zurücksetzen
       const form = document.getElementById('sighting-form');
       delete form.dataset.lat;
       delete form.dataset.lon;
@@ -670,7 +757,150 @@
       modal.classList.remove('flex');
     }
 
-    // Sichtungsformular mit verlässlicher Geodaten-Zuweisung
+    // Modal: Tiernamen bearbeiten
+    function openEditSpeciesModal(speciesId) {
+      const s = getAllSpecies().find(x => x.id === speciesId);
+      if (!s) return;
+
+      document.getElementById('edit-species-id').value = s.id;
+      document.getElementById('edit-species-de').value = s.de;
+      document.getElementById('edit-species-en').value = s.en;
+      document.getElementById('edit-species-sci').value = s.sci;
+
+      const modal = document.getElementById('edit-species-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeEditSpeciesModal() {
+      const modal = document.getElementById('edit-species-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document.getElementById('edit-species-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('edit-species-id').value;
+      const de = document.getElementById('edit-species-de').value.trim();
+      const en = document.getElementById('edit-species-en').value.trim();
+      const sci = document.getElementById('edit-species-sci').value.trim();
+
+      customNames[id] = { de, en, sci };
+      localStorage.setItem('oceanlog_names', JSON.stringify(customNames));
+
+      closeEditSpeciesModal();
+      renderSpeciesGrid();
+      updateMapMarkers();
+    });
+
+    document.getElementById('close-edit-species-btn').addEventListener('click', closeEditSpeciesModal);
+    document.getElementById('cancel-edit-species-btn').addEventListener('click', closeEditSpeciesModal);
+
+    // Modal: Neues Tier hinzufügen
+    function openAddSpeciesModal() {
+      document.getElementById('add-species-form').reset();
+      document.getElementById('add-species-img').value = '';
+      document.getElementById('species-suggestions-list').classList.add('hidden');
+      const modal = document.getElementById('add-species-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeAddSpeciesModal() {
+      const modal = document.getElementById('add-species-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document.getElementById('close-add-species-btn').addEventListener('click', closeAddSpeciesModal);
+    document.getElementById('cancel-add-species-btn').addEventListener('click', closeAddSpeciesModal);
+
+    // Live-Namensvorschläge via Wikipedia-Search beim Tippen
+    let speciesSearchTimeout = null;
+    const addInput = document.getElementById('add-species-input');
+    const speciesSugList = document.getElementById('species-suggestions-list');
+
+    addInput.addEventListener('input', () => {
+      clearTimeout(speciesSearchTimeout);
+      const q = addInput.value.trim();
+      if (q.length < 2) {
+        speciesSugList.classList.add('hidden');
+        return;
+      }
+
+      speciesSearchTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`https://de.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(q)}&limit=5&namespace=0&format=json&origin=*`);
+          if (res.ok) {
+            const data = await res.json();
+            const titles = data[1] || [];
+            if (titles.length === 0) {
+              speciesSugList.classList.add('hidden');
+              return;
+            }
+
+            speciesSugList.innerHTML = titles.map(title => `
+              <div class="px-3 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer border-b border-slate-100 dark:border-slate-800 text-[11px] flex items-center justify-between" data-title="${title}">
+                <span class="font-bold text-slate-800 dark:text-slate-200">🐟 ${title}</span>
+                <span class="text-[10px] text-appTeal">Auswählen</span>
+              </div>
+            `).join('');
+            speciesSugList.classList.remove('hidden');
+
+            speciesSugList.querySelectorAll('div').forEach(el => {
+              el.addEventListener('click', async () => {
+                const selectedTitle = el.dataset.title;
+                addInput.value = selectedTitle;
+                speciesSugList.classList.add('hidden');
+
+                try {
+                  const summaryRes = await fetch(`https://de.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(selectedTitle)}`);
+                  if (summaryRes.ok) {
+                    const sData = await summaryRes.json();
+                    if (sData.thumbnail && sData.thumbnail.source) {
+                      document.getElementById('add-species-img').value = sData.thumbnail.source;
+                    }
+                    if (sData.description) {
+                      document.getElementById('add-species-sci').value = sData.description;
+                    }
+                    if (!document.getElementById('add-species-en').value) {
+                      document.getElementById('add-species-en').value = selectedTitle;
+                    }
+                  }
+                } catch (e) {}
+              });
+            });
+          }
+        } catch (e) {
+          speciesSugList.classList.add('hidden');
+        }
+      }, 300);
+    });
+
+    document.getElementById('add-species-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const de = document.getElementById('add-species-input').value.trim();
+      const en = document.getElementById('add-species-en').value.trim() || de;
+      const sci = document.getElementById('add-species-sci').value.trim() || 'Species sp.';
+      const img = document.getElementById('add-species-img').value || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80';
+
+      const newAnimal = {
+        id: 'custom-' + Date.now(),
+        cat: activeCategory === 'all' ? 'reef' : activeCategory,
+        de,
+        en,
+        sci,
+        img
+      };
+
+      customSpecies.push(newAnimal);
+      localStorage.setItem('oceanlog_custom', JSON.stringify(customSpecies));
+      closeAddSpeciesModal();
+      renderSpeciesGrid();
+      updateStats();
+    });
+
+    // Formular: Neue Sichtung speichern
     document.getElementById('sighting-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const speciesId = document.getElementById('modal-species-id').value;
@@ -684,7 +914,6 @@
       let lat = form.dataset.lat ? parseFloat(form.dataset.lat) : null;
       let lon = form.dataset.lon ? parseFloat(form.dataset.lon) : null;
 
-      // Falls keine Geodaten zugewiesen wurden, Standard-Koordinate setzen
       if (lat === null || lon === null || isNaN(lat) || isNaN(lon)) {
         lat = -17.5388;
         lon = -149.8295;
@@ -775,17 +1004,12 @@
       );
     });
 
-    // Erzeuge eine Stecknadel mit rundem Smaragd-Kopf als SVG-Icon
     function createTealPinIcon() {
       const pinSvg = `
         <svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.5));">
-          <!-- Nadelspitze -->
           <path d="M15 42L11.5 24C11.5 24 15 26 18.5 24L15 42Z" fill="#a0aec0" />
           <path d="M15 42L15 25" stroke="#718096" stroke-width="1.5" stroke-linecap="round" />
-          
-          <!-- Stecknadelkopf (Smaragdgrün/Teal) -->
           <circle cx="15" cy="14" r="12" fill="#00a878" stroke="#ffffff" stroke-width="2.5" />
-          <!-- Glanzpunkt auf dem Kopf -->
           <circle cx="12" cy="11" r="3" fill="#ffffff" opacity="0.6" />
         </svg>
       `;
@@ -794,8 +1018,8 @@
         className: 'custom-pin-marker',
         html: pinSvg,
         iconSize: [30, 42],
-        iconAnchor: [15, 42], // Spitze der Nadel sitzt exakt auf der Koordinate
-        popupAnchor: [0, -40] // Popup öffnet sich oberhalb des Kopfes
+        iconAnchor: [15, 42],
+        popupAnchor: [0, -40]
       });
     }
 
@@ -810,7 +1034,6 @@
       updateMapMarkers();
     }
 
-    // Stecknadeln auf der Weltkarte & intelligentes automatisches Zentrieren
     function updateMapMarkers() {
       if (!markersLayer || !map) return;
       markersLayer.clearLayers();
@@ -853,7 +1076,6 @@
         }
       });
 
-      // Wenn Markierungen existieren, zoome so, dass sowohl Indonesien als auch Polynesien sichtbar sind
       if (bounds.length > 0) {
         try {
           map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
@@ -898,41 +1120,6 @@
       };
       reader.readAsDataURL(file);
     });
-
-    async function promptAddCustomSpecies() {
-      const name = prompt(currentLang === 'de' ? 'Welches Meerestier möchtest du hinzufügen?' : 'Which marine species would you like to add?');
-      if (!name) return;
-
-      let photoUrl = 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80';
-      let sciName = 'Species sp.';
-
-      try {
-        const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.thumbnail && data.thumbnail.source) {
-            photoUrl = data.thumbnail.source;
-          }
-          if (data.description) {
-            sciName = data.description;
-          }
-        }
-      } catch (err) {}
-
-      const newAnimal = {
-        id: 'custom-' + Date.now(),
-        cat: activeCategory === 'all' ? 'reef' : activeCategory,
-        de: name,
-        en: name,
-        sci: sciName,
-        img: photoUrl
-      };
-
-      customSpecies.push(newAnimal);
-      localStorage.setItem('oceanlog_custom', JSON.stringify(customSpecies));
-      renderSpeciesGrid();
-      updateStats();
-    }
 
     function saveData() {
       localStorage.setItem('oceanlog_sightings', JSON.stringify(sightings));
@@ -1003,12 +1190,13 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
-      // Backup Export
+      // Backup Export (inkl. bearbeiteter Namen)
       document.getElementById('export-btn').addEventListener('click', () => {
         const payload = {
           sightings,
           customSpecies,
           customPhotos,
+          customNames,
           exportDate: new Date().toISOString()
         };
         const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -1031,9 +1219,11 @@
             if (data.sightings) sightings = data.sightings;
             if (data.customSpecies) customSpecies = data.customSpecies;
             if (data.customPhotos) customPhotos = data.customPhotos;
+            if (data.customNames) customNames = data.customNames;
             saveData();
             localStorage.setItem('oceanlog_custom', JSON.stringify(customSpecies));
             localStorage.setItem('oceanlog_photos', JSON.stringify(customPhotos));
+            localStorage.setItem('oceanlog_names', JSON.stringify(customNames));
             renderSpeciesGrid();
             updateStats();
             updateMapMarkers();
@@ -1045,7 +1235,6 @@
         reader.readAsText(file);
       });
 
-      // "Alle zeigen"-Button: Zoomt so heraus, dass alle Pins weltweit Platz haben
       document.getElementById('reset-map-btn').addEventListener('click', () => {
         updateMapMarkers();
       });
